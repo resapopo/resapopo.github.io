@@ -256,8 +256,8 @@ document.querySelector('button#start').addEventListener('click', async () => {
     video: {
       // original
       // width: 1280, height: 720
-      // mini
-      width: 320, height: 240
+      // iphone safari
+      width: 320//, height: 240
     }
   };
   console.log('Using media constraints:', constraints);
