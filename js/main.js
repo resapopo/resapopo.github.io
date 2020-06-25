@@ -257,7 +257,7 @@ document.querySelector('button#start').addEventListener('click', async () => {
       // original
       // width: 1280, height: 720
       // iphone safari
-      width: 320//, height: 240
+      width: 640//, height: 240
     }
   };
   console.log('Using media constraints:', constraints);
