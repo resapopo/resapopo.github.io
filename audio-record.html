@@ -41,13 +41,13 @@
             href="http://w3c.github.io/mediacapture-record/MediaRecorder.html"
             title="W3C MediaStream Recording API Editor's Draft">Editor's&nbsp;Draft</a>.
     </p>
-    <p><a href="audio-record.html">Audio recording version.</a></p>
+    <p><a href="index.html">Video recording version.</a></p>
 
     <!-- 録音の返し-->
-    <video id="gum" playsinline autoplay muted></video>
+    <audio id="gum" playsinline autoplay muted></audio>
     <!-- store recorded tracks -->
     <ol id="tracks">
-    <!-- <video id="recorded" playsinline></video> -->
+    <!-- <audio id="recorded" playsinline></audio> -->
 
     </ol>
 
@@ -61,7 +61,7 @@
                min="0" max="0">
         <button id="playall" disabled>Play All</button>
         <button id="activation">Active</button>
-        <input type="file" accept="video/*" id="upload"></input>
+        <input type="file" accept="audio/*" id="upload"></input>
     </div>
 
     <div>
@@ -86,7 +86,7 @@
 <script src="js/howler.js" async></script>
 <!-- cdnからhowler.min.jsを読み込み -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script> -->
-<script src="js/main.js" async></script>
+<script src="js/main-audio.js" async></script>
 <!--
 <script src="../../../js/lib/ga.js"></script>
 -->

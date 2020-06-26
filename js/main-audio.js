@@ -18,7 +18,7 @@ let mediaRecorder;
 // 録音生データを格納
 let recordedBlobs;
 
-// 再生が有効なvideoへのアクセスを格納
+// 再生が有効なaudioへのアクセスを格納
 let playlist = [];
 
 // トラック番号
@@ -26,7 +26,7 @@ let playlist = [];
 
 // ハンドラの設定
 const errorMsgElement = document.querySelector('span#errorMsg');
-// const recordedVideo = document.querySelector('video#recorded');
+// const recordedAudio = document.querySelector('audio#recorded');
 // ではなくリストに格納する
 const recordedTracks = document.querySelector('ol#tracks')
 const recordButton = document.querySelector('button#record');
@@ -50,7 +50,7 @@ recordButton.addEventListener('click', () => {
 // プレイ（プッシュ）ボタン
 const playButton = document.querySelector('button#play');
 playButton.addEventListener('click', () => {
-  const superBuffer = new Blob(recordedBlobs, {type: 'video/webm'}); 
+  const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
   
   createNewPanel(window.URL.createObjectURL(superBuffer));
   // 再生（任意）
@@ -64,12 +64,12 @@ playButton.addEventListener('click', () => {
 
 function createNewPanel(audioSrc) {
   /* 
-  *  1. create new video element✔
+  *  1. create new audio element✔
   *  2. ソースをsuperBufferで与える✔
   *  3. li要素を作り、ビデオをappend✔
   *  4. #tracksにappend✔
   */
-  let newTrack = document.createElement('video');
+  let newTrack = document.createElement('audio');
   newTrack.setAttribute('id', 'recorded');
   newTrack.src = null;
   newTrack.srcObject = null;
@@ -107,7 +107,7 @@ function createNewPanel(audioSrc) {
 */
 const downloadButton = document.querySelector('button#download');
 downloadButton.addEventListener('click', () => {
-//  const blob = new Blob(recordedBlobs, {type: 'video/webm'});
+//  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
   if (recordedTracks.childElementCount < 1) {
     console.log('There is no data can be downloaded!')
   } else {
@@ -179,13 +179,13 @@ function startRecording() {
   // 初期化
   recordedBlobs = [];
   // コーデックを推奨順に指定
-  let options = {mimeType: 'video/webm;codecs=vp9,opus'};
+  let options = {mimeType: 'audio/mp3'};
   if (!MediaRecorder.isTypeSupported(options.mimeType)) {
     console.error(`${options.mimeType} is not supported`);
-    options = {mimeType: 'video/webm;codecs=vp8,opus'};
+    options = {mimeType: 'audio/ogg'};
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
       console.error(`${options.mimeType} is not supported`);
-      options = {mimeType: 'video/webm'};
+      options = {mimeType: 'audio/mpeg'};
       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
         console.error(`${options.mimeType} is not supported`);
         options = {mimeType: ''};
@@ -224,8 +224,8 @@ function handleSuccess(stream) {
   console.log('getUserMedia() got stream:', stream);
   window.stream = stream;
 
-  const gumVideo = document.querySelector('video#gum');
-  gumVideo.srcObject = stream;
+  const gumAudio = document.querySelector('audio#gum');
+  gumAudio.srcObject = stream;
 }
 
 async function init(constraints) {
@@ -239,18 +239,11 @@ async function init(constraints) {
 }
 
 // start recording
-// videoの幅高さをスマホ対応させないとinvalid constraints
 document.querySelector('button#start').addEventListener('click', async () => {
   const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
     audio: {
       echoCancellation: {exact: hasEchoCancellation}
-    },
-    video: {
-      // original
-      // width: 1280, height: 720
-      // iphone safari
-      width: 640//, height: 240
     }
   };
   console.log('Using media constraints:', constraints);
