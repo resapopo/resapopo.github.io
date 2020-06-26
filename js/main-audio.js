@@ -41,8 +41,6 @@ recordButton.addEventListener('click', () => {
     stopRecording();
     recordButton.textContent = 'Start Recording';
     playButton.disabled = false;
-    downloadButton.disabled = false;
-    playallButton.disabled = false;
   }
 });
 //recordButton
@@ -55,8 +53,21 @@ playButton.addEventListener('click', () => {
   createNewPanel(window.URL.createObjectURL(superBuffer));
   // 再生（任意）
   // newTrack.play();
+  downloadButton.disabled = false;
+  playallButton.disabled = false;
+  popButton.disabled = false;
 });
 // playButton
+
+//
+const popButton = document.querySelector('button#pop');
+popButton.addEventListener('click', () => {
+  if (recordedTracks.childElementCount === 1) {
+    popButton.disabled = true;
+  };
+  recordedTracks.removeChild(recordedTracks.lastElementChild);
+})
+// popButton
 
 /* function createNewPanel(src)を外注させる
 *  マーク部分を関数として独立
@@ -80,7 +91,7 @@ function createNewPanel(audioSrc) {
      ダウンロードボタンなどを納めたい */
   newPanel.appendChild(newTrack);
   // プレイリストに追加
-  playlist.push(newTrack);
+  playlist.push(newTrack.src);
   /*
   *  1. 再生位置指定
   *   a. 開始位置をフォームで指定できるようにする
@@ -119,7 +130,7 @@ downloadButton.addEventListener('click', () => {
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = url;
-    a.download = `test-${index}.webm`;
+    a.download = `test-${index}.ogg`;
     document.body.appendChild(a);
     a.click();
     // メインスレッドが完了したらa要素を取り除く(便宜上100ms指定)
@@ -131,12 +142,19 @@ downloadButton.addEventListener('click', () => {
 });
 // downloadButton
 
-// 全部同時に再生
+// 全部同時に再生, mixing.js
 const playallButton = document.querySelector('button#playall');
 playallButton.addEventListener('click', () => {
   playAll(playlist);
 })
 // playallButton
+
+
+const overDubButton = document.querySelector('button#overdub');
+overDubButton.addEventListener('click', () => {
+  playAll(playlist);
+  startRecording();
+})
 
 /*
 doSomething().then(function(result) {
@@ -151,11 +169,6 @@ doSomething().then(function(result) {
 .catch(failureCallback);
 */
 
-function playAll(yourplaylist) {
-  for (let i = 0; yourplaylist.length-1; i++) {
-    yourplaylist[i].play();
-  };
-}
 
 // 外部データをアップロード
 // まずinputでファイルを取得、
@@ -179,10 +192,10 @@ function startRecording() {
   // 初期化
   recordedBlobs = [];
   // コーデックを推奨順に指定
-  let options = {mimeType: 'audio/mp3'};
+  let options = {mimeType: 'audio/ogg; codecs=opus'};
   if (!MediaRecorder.isTypeSupported(options.mimeType)) {
     console.error(`${options.mimeType} is not supported`);
-    options = {mimeType: 'audio/ogg'};
+    options = {mimeType: 'audio/ogg; codecs=vorbis'};
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
       console.error(`${options.mimeType} is not supported`);
       options = {mimeType: 'audio/mpeg'};
@@ -242,9 +255,9 @@ async function init(constraints) {
 document.querySelector('button#start').addEventListener('click', async () => {
   const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
-    audio: {
+    audio: true/*{
       echoCancellation: {exact: hasEchoCancellation}
-    }
+    }*/
   };
   console.log('Using media constraints:', constraints);
   await init(constraints);

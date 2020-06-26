@@ -55,13 +55,14 @@
         <button id="start">Start camera</button>
         <button id="record" disabled>Start Recording</button>
         <button id="play" disabled>Push</button>
+        <button id="pop" disabled>Pop</button>
         <button id="download" disabled>Download</button>
         <label for="index">Track Number:</label>
         <input type="number" id="index" name="track_number" value="0"
                min="0" max="0">
         <button id="playall" disabled>Play All</button>
-        <button id="activation">Active</button>
         <input type="file" accept="audio/*" id="upload"></input>
+        <button id="overdub">Over Dubbing</button>
     </div>
 
     <div>
@@ -86,7 +87,10 @@
 <script src="js/howler.js" async></script>
 <!-- cdnからhowler.min.jsを読み込み -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script> -->
+<!-- mainのjsを読み込み -->
 <script src="js/main-audio.js" async></script>
+<!-- load mixing.js -->
+<script src="js/mixing.js" async></script>
 <!--
 <script src="../../../js/lib/ga.js"></script>
 -->
