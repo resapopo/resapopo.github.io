@@ -284,34 +284,37 @@ function stopRecording() {
   mediaRecorder.stop();
 }
 
-function handleSuccess(stream) {
-  recordButton.disabled = false;
-  console.log('getUserMedia() got stream:', stream);
-  window.stream = stream;
-
-  const gumAudio = document.querySelector('audio#gum');
-  gumAudio.srcObject = stream;
-}
-
-async function init(constraints) {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    handleSuccess(stream);
-  } catch (e) {
-    console.error('navigator.getUserMedia error:', e);
-    errorMsgElement.innerHTML = `navigator.getUserMedia error:${e.toString()}`;
-  }
-}
-
-// start recording
+// access yours mic
 document.querySelector('button#start').addEventListener('click', async () => {
   const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
     audio: true/*{
       echoCancellation: {exact: hasEchoCancellation}
-    }*/
+    }*/,
+    video: false
   };
   console.log('Using media constraints:', constraints);
   await init(constraints);
 });
+
+async function init(constraints) {
+  navigator.mediaDevices.getUserMedia(constraints)
+  .then(handleSuccess)
+  .catch(handleError)
+};
+
+function handleSuccess(stream) {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const src = audioCtx.createMediaStreamSource(stream);
+
+  recordButton.disabled = false;
+  console.log('getUserMedia() got stream:', stream);
+  window.stream = stream;
+
+}
+
+function handleError() {
+  console.error('navigator.getUserMedia error:', e);
+  errorMsgElement.innerHTML = `navigator.getUserMedia error:${e.toString()}`;
+};
 
