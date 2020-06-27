@@ -7,6 +7,7 @@ function playAll(playList) {
     // Fix up prefixing
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
+    console.log('AudioContext is created')
 
     bufferLoader = new BufferLoader(
         context,
@@ -15,6 +16,7 @@ function playAll(playList) {
     );
 
     bufferLoader.load();
+    console.log('bufferring done')
 }
 //
 
@@ -26,13 +28,14 @@ function finishedLoading(bufferList) {
       sources[i].buffer = bufferList[i];
       sources[i].connect(context.destination);
     }
+    console.log('ready...')
     
     for (var j = 0; j < this.urlList.length; j++) {
       sources[j].start(0);
     }
+    console.log('start')
 }
 //
-
 
 class BufferLoader {
   constructor(context, urlList, callback) {
@@ -80,6 +83,9 @@ class BufferLoader {
   load() {
     for (var i = 0; i < this.urlList.length; ++i)
       this.loadBuffer(this.urlList[i], i);
+  console.log('Buffering has done');
+  console.log(context)
+  console.log(Date.now());
   }
 }
 

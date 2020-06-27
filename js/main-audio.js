@@ -15,6 +15,10 @@
 
 let mediaRecorder;
 
+// AudioContext is passed to mixing.js
+let ctxt;
+// ctxt = new AudioContext();
+
 // 録音生データを格納
 let recordedBlobs;
 
@@ -152,9 +156,57 @@ playallButton.addEventListener('click', () => {
 
 const overDubButton = document.querySelector('button#overdub');
 overDubButton.addEventListener('click', () => {
-  playAll(playlist);
+  overDub(playlist, ctxt)  
+});
+
+function overDub(playList) {
+  // Fix up prefixing
+  window.AudioContext = window.AudioContext || window.webkitAudioContext;
+  ctxt = new AudioContext();
+  console.log('AudioContext is created')
+  console.log(ctxt)
+
+
+  bufferLoader = new BufferLoader(
+      ctxt,
+      playList,
+      _finishedLoading
+  );
+
+  console.log('proceccing overDub()')
+  console.log(ctxt);
+  console.log(Date.now());
+  //
+  bufferLoader.load();
+
+}
+
+function _finishedLoading(bufferList) {
+  // Create multiple sources and play them together.
+  let sources = [];
+  console.log('proccecing _finishedLoading()')
+  console.log(ctxt);
+  console.log(Date.now());
+  for (var i = 0; i < this.urlList.length; i++) {
+    sources.push(ctxt.createBufferSource());
+    sources[i].buffer = bufferList[i];
+    sources[i].connect(ctxt.destination);
+  };
+
+  console.log('ready')
+  console.log(Date.now());
+
+  for (var j = 0; j < this.urlList.length; j++) {
+    sources[j].start(0);
+  };
+  console.log('play playlist')
+  console.log(Date.now());
+
   startRecording();
-})
+  console.log(Date.now());
+
+}
+//
 
 /*
 doSomething().then(function(result) {
