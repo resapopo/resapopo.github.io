@@ -77,7 +77,7 @@ function startRecording() {
   }
 
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  recordButton.textContent = 'Stop Recording';
+  // recordButton.textContent = 'Stop Recording';
   playButton.disabled = true;
   downloadButton.disabled = true;
   mediaRecorder.onstop = (event) => {
