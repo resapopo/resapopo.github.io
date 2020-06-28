@@ -84,6 +84,7 @@ class BufferLoader {
     for (var i = 0; i < this.urlList.length; ++i)
       this.loadBuffer(this.urlList[i], i);
   console.log('Buffering has done');
+  // ロードに掛かる時間がthis.currentTimeに上乗せされている
   console.log(context)
   console.log(Date.now());
   }

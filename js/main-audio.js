@@ -40,7 +40,6 @@ const formInput = document.querySelector('input#index');
 // レコードボタン
 recordButton.addEventListener('click', () => {
   if (recordButton.textContent === 'Start Recording') {
-    recordButton.textContent = 'Clicked!';
     startRecording();
   } else {
     stopRecording();
@@ -77,7 +76,7 @@ function startRecording() {
   }
 
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  // recordButton.textContent = 'Stop Recording';
+  recordButton.textContent = 'Stop Recording';
   playButton.disabled = true;
   downloadButton.disabled = true;
   mediaRecorder.onstop = (event) => {
@@ -115,6 +114,7 @@ popButton.addEventListener('click', () => {
     popButton.disabled = true;
   };
   recordedTracks.removeChild(recordedTracks.lastElementChild);
+  playlist.pop();
 })
 // popButton
 
@@ -239,16 +239,14 @@ function _finishedLoading(bufferList) {
   };
 
   console.log('ready')
-  console.log(Date.now());
 
   for (var j = 0; j < this.urlList.length; j++) {
+    // sources[j].start(ctxt.currentTime);
     sources[j].start(0);
   };
   console.log('play playlist')
-  console.log(Date.now());
 
   startRecording();
-  console.log(Date.now());
 
 }
 //
