@@ -49,6 +49,52 @@ recordButton.addEventListener('click', () => {
 });
 //recordButton
 
+function readyRecording() {
+  return new Promise ((resolve, reject) => {
+    // 初期化
+    recordedBlobs = [];
+    // コーデックを推奨順に指定
+    let options = {mimeType: 'audio/ogg; codecs=opus'};
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      console.error(`${options.mimeType} is not supported`);
+      options = {mimeType: 'audio/ogg; codecs=vorbis'};
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        console.error(`${options.mimeType} is not supported`);
+        options = {mimeType: 'audio/mpeg'};
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.error(`${options.mimeType} is not supported`);
+          options = {mimeType: ''};
+        }
+      }
+    }
+
+    try {
+      mediaRecorder = new MediaRecorder(window.stream, options);
+    } catch (e) {
+      console.error('Exception while creating MediaRecorder:', e);
+      errorMsgElement.innerHTML = `Exception while creating MediaRecorder: ${JSON.stringify(e)}`;
+      return;
+    }
+
+    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+    recordButton.textContent = 'Stop Recording';
+    playButton.disabled = true;
+    downloadButton.disabled = true;
+    mediaRecorder.onstop = (event) => {
+      console.log('Recorder stopped: ', event);
+      console.log('Recorded Blobs: ', recordedBlobs);
+    };
+    mediaRecorder.ondataavailable = handleDataAvailable;
+    
+    resolve(mediaRecorder);
+    //mediaRecorder.start();
+    //console.log('MediaRecorder started', mediaRecorder);
+
+  })
+  
+}
+// readyRecording
+
 function startRecording() {
   // 初期化
   recordedBlobs = [];
@@ -59,10 +105,14 @@ function startRecording() {
     options = {mimeType: 'audio/ogg; codecs=vorbis'};
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
       console.error(`${options.mimeType} is not supported`);
-      options = {mimeType: 'audio/mpeg'};
+      options = {mimeType: 'audio/webm; codecs=opus'};
       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
         console.error(`${options.mimeType} is not supported`);
-        options = {mimeType: ''};
+        options = {mimeType: 'audio/mpeg'};
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.error(`${options.mimeType} is not supported`);
+          options = {mimeType: ''};
+        }
       }
     }
   }
@@ -86,12 +136,23 @@ function startRecording() {
   mediaRecorder.ondataavailable = handleDataAvailable;
   mediaRecorder.start();
   console.log('MediaRecorder started', mediaRecorder);
+  console.log(Date.now())
 }
 // startRecording
+
+function handleDataAvailable(event) {
+  console.log('handleDataAvailable', event);
+  if (event.data && event.data.size > 0) {
+    recordedBlobs.push(event.data);
+  }
+}
 
 function stopRecording() {
   mediaRecorder.stop();
 }
+//
+
+
 
 // プレイ（プッシュ）ボタン
 const playButton = document.querySelector('button#play');
@@ -165,6 +226,8 @@ function createNewPanel(audioSrc) {
 *   b. 指定されたトラック番号が正当なら、その番号に対応したurlをダウンロード
 *      不正な値ならエラーを出力
 */
+
+// 一回しかダウンロードできない
 const downloadButton = document.querySelector('button#download');
 downloadButton.addEventListener('click', () => {
 //  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
@@ -198,71 +261,41 @@ playallButton.addEventListener('click', () => {
 })
 // playallButton
 
-
 const overDubButton = document.querySelector('button#overdub');
 overDubButton.addEventListener('click', () => {
-  overDub(playlist, ctxt)  
+  overDub(playlist);
 });
 
-function overDub(playList) {
-  // Fix up prefixing
-  window.AudioContext = window.AudioContext || window.webkitAudioContext;
-  ctxt = new AudioContext();
-  console.log('AudioContext is created')
-  console.log(ctxt)
 
-
-  bufferLoader = new BufferLoader(
-      ctxt,
-      playList,
-      _finishedLoading
-  );
-
-  console.log('proceccing overDub()')
-  console.log(ctxt);
-  console.log(Date.now());
-  //
-  bufferLoader.load();
-
+//
+function playAll(playList) {
+  load(playList)
+    .then(createdBuffer => mixDown(createdBuffer))
+    .then(mixedBuffer => mixedBuffer.start())
+    .catch(console.log('error in playAll'));
 }
 
-function _finishedLoading(bufferList) {
-  // Create multiple sources and play them together.
-  let sources = [];
-  console.log('proccecing _finishedLoading()')
-  console.log(ctxt);
-  console.log(Date.now());
-  for (var i = 0; i < this.urlList.length; i++) {
-    sources.push(ctxt.createBufferSource());
-    sources[i].buffer = bufferList[i];
-    sources[i].connect(ctxt.destination);
-  };
+function overDub(playList) {
+  let mixedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer))
+                               .catch(console.log('error in overDub'));
+  let readyMediaRecorder = readyRecording();
 
-  console.log('ready')
-
-  for (var j = 0; j < this.urlList.length; j++) {
-    // sources[j].start(ctxt.currentTime);
-    sources[j].start(0);
-  };
-  console.log('play playlist')
-
-  startRecording();
-
+  Promise.all([mixedBuffer, readyMediaRecorder])
+    .then(result => {
+      result[0].start();
+      wait(latency)
+        .then(() => result[1].start())
+        .catch(e => console.error(e));
+    })
+    .catch(console.log('error in overDub'));
 }
 //
 
-/*
-doSomething().then(function(result) {
-  return doSomethingElse(result);
-})
-.then(function(newResult) {
-  return doThirdThing(newResult);
-})
-.then(function(finalResult) {
-  console.log('Got the final result: ' + finalResult);
-})
-.catch(failureCallback);
-*/
+let latency = 100;
+
+const wait = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 
 // 外部データをアップロード
@@ -275,13 +308,9 @@ uploadButton.addEventListener('change', function(e) {
   createNewPanel(URL.createObjectURL(file));
 });
 
+/* アップロードしたファイルが含まれていると、playAllできない
+   セキュリティ云々 */
 
-function handleDataAvailable(event) {
-  console.log('handleDataAvailable', event);
-  if (event.data && event.data.size > 0) {
-    recordedBlobs.push(event.data);
-  }
-}
 
 // access yours mic
 document.querySelector('button#start').addEventListener('click', async () => {
