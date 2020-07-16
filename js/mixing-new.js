@@ -17,6 +17,7 @@ function load(playList) {
 
     for (var i = 0; i < playList.length; i++) {
       // Load buffer asynchronously
+      // console.log(playList[i]);
       bufferList[i] = fetch(playList[i])
         .then(function(response) {
           let buffer = response.arrayBuffer();
@@ -55,16 +56,12 @@ function mixDown(loadedBufferList) {
 
   // procedure
   //
-  const mix = context.createBufferSource();
   let maxBufferLength = getSongLength(loadedBufferList);
 
   //call our function here
-  mix.buffer = _mixDown(loadedBufferList, maxBufferLength, 2);
-
-  mix.connect(context.destination);
-
-  return mix;
-  //
+  let ourNumberOfChannels = 1;
+  // return AudioBuffer
+  return _mixDown(loadedBufferList, maxBufferLength, ourNumberOfChannels);
 
   // functions
   //
