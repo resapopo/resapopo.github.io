@@ -106,7 +106,7 @@ function handleError() {
 
 // レコードボタン
 recordButton.addEventListener('click', () => {
-  if (recordButton.textContent === 'Start Recording') {
+  if (recordButton.textContent === '録音') {
     if (usingMediaRecorder) {
       if (myPlayList.length > 0) {
         overDub(myPlayList);
@@ -120,7 +120,7 @@ recordButton.addEventListener('click', () => {
         startRecordingIos();
       };
     } 
-  } else if (recordButton.textContent === 'Stop Recording') {
+  } else if (recordButton.textContent === '停止') {
     if (usingMediaRecorder) {
       stopRecording();
     } else {
@@ -136,12 +136,12 @@ recordButton.addEventListener('click', () => {
       console.log('Using media constraints:', constraints);
       init(constraints);
     };    
-    recordButton.textContent = 'Add Recorded Track';
+    recordButton.textContent = 'リストに追加';
     playButton.disabled = false;
   } else { // when recordButton.textContent === 'Add Recorded Track'
     const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
     createNewPanel(window.URL.createObjectURL(superBuffer));
-    recordButton.textContent = 'Start Recording';
+    recordButton.textContent = '録音';
   };
 });
 //recordButton
@@ -177,7 +177,7 @@ function startRecording() {
   }
 
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  recordButton.textContent = 'Stop Recording';
+  recordButton.textContent = '停止';
   playButton.disabled = true;
   downloadButton.disabled = true;
   mediaRecorder.onstop = (event) => {
@@ -194,7 +194,7 @@ function startRecordingIos() {
   // 初期化
   recordedBlobs = [];
 
-  recordButton.textContent = 'Stop Recording';
+  recordButton.textContent = '停止';
   playButton.disabled = true;
   downloadButton.disabled = true;
 /*      mediaRecorder.onstop = (event) => {
@@ -380,7 +380,7 @@ function readyRecording() {
     }
 
     console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-    recordButton.textContent = 'Stop Recording';
+    recordButton.textContent = '停止';
     playButton.disabled = true;
     downloadButton.disabled = true;
     mediaRecorder.onstop = (event) => {
@@ -402,7 +402,7 @@ function readyRecordingIos() {
       // 初期化
     recordedBlobs = [];
 
-    recordButton.textContent = 'Stop Recording';
+    recordButton.textContent = '停止';
     playButton.disabled = true;
     downloadButton.disabled = true;
   /*      mediaRecorder.onstop = (event) => {
