@@ -18,7 +18,7 @@
 
     <base target="_blank">
 
-    <title>MediaStream Recording</title>
+    <title>Remote Recording Web Assistant</title>
 
     <link rel="stylesheet" href="css/main.css">
 
@@ -28,45 +28,35 @@
 
 <div id="container">
 
-    <h1>Remote Recording Web Application</h1>
+    <h1>Remote Recording Web Assistant</h1>
+    <button id="start">Access mic</button>
 
-    <p> This app is highly depending on MediaStream Recording
-        in the series of
-        <a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>. 
-        <!-- For more information see the MediaStream Recording API <a
-            href="http://w3c.github.io/mediacapture-record/MediaRecorder.html"
-            title="W3C MediaStream Recording API Editor's Draft">Editor's&nbsp;Draft</a>.
-        -->
-    </p>
-    <p><a href="index.html">Video recording version(Experimental)</a></p>
-    <p><a href="remote-recording-assistant.html">alpha version</a></p>
+    <!-- bottons -->
+    <div id="controler-1">
+        <button id="record" disabled>Start Recording</button>
+        <input type="file" accept="audio/*" id="upload"></input>
+        <button id="playall" disabled>Play All</button>
+        <button id="play" disabled hidden>Push</button>
+        <button id="download" disabled>Download Mixed-Track</button>
+        <input type="number" id="index" name="track_number" value="0"
+               min="0" max="0" hidden>
+        
+        
+        <button id="overdub" hidden>Over Dubbing</button>
+    </div>
 
-    <!-- 録音の返し-->
-    <audio id="gum" playsinline autoplay muted></audio>
     <!-- store recorded tracks -->
     <div id="tracks">
-
-
+       
     </div>
-
-    <div>
-        <button id="start">Start camera</button>
-        <button id="record" disabled>Start Recording</button>
-        <button id="play" disabled>Push</button>
-        <button id="pop" disabled>Pop</button>
-        <label for="index_for_delete">Track Number:</label>
+    <div id="controler-2">
+        <button id="pop" disabled>Delete:</button>
         <input type="number" id="index_for_delete" name="track_number_for_delete" value="0"
                min="0" max="0">
-        <button id="download" disabled>Download</button>
-        <label for="index">Track Number:</label>
-        <input type="number" id="index" name="track_number" value="0"
-               min="0" max="0">
-        <button id="playall" disabled>Play All</button>
-        <input type="file" accept="audio/*" id="upload"></input>
-        <button id="overdub">Over Dubbing</button>
     </div>
 
-    <div>
+    <!--
+    <div id="options">
         <h4>Media Stream Constraints options</h4>
         <p>(Experimental)Echo cancellation: <input type="checkbox" id="echoCancellation"></p>
     </div>
@@ -74,11 +64,26 @@
     <div>
         <span id="errorMsg"></span>
     </div>
+    -->
 
+
+
+</div>
+
+<div id="footer">
     <!--
     <a href="https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/record"
        title="View source for this page on GitHub" id="viewSource">View source on GitHub</a>
     -->
+    <p> This app is based on MediaStream Recording
+        in the series of
+        <a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>. 
+        <!-- For more information see the MediaStream Recording API <a
+            href="http://w3c.github.io/mediacapture-record/MediaRecorder.html"
+            title="W3C MediaStream Recording API Editor's Draft">Editor's&nbsp;Draft</a>.
+        -->
+    </p>
+    <p><a href="audio-record.html">Draft version</a></p>
 
 </div>
 

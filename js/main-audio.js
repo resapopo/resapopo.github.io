@@ -49,21 +49,24 @@ let recordedBlobs;
 let myPlayList = [];
 
 // トラック番号
-// let index = 0;
+let index;
+let totalIndex;
 
 // ハンドラの設定
 const errorMsgElement = document.querySelector('span#errorMsg');
 // const recordedAudio = document.querySelector('audio#recorded');
 // ではなくリストに格納する
-const recordedTracks = document.querySelector('ol#tracks')
+//const recordedTracks = document.querySelector('ol#tracks')
+const recordedTracks = document.querySelector('div#tracks')
 const recordButton = document.querySelector('button#record');
 //
+const formInputDelete = document.querySelector('input#index_for_delete');
 const formInput = document.querySelector('input#index');
 
 
 // access your mic
 document.querySelector('button#start').addEventListener('click', async () => {
-  const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
+  // const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
     audio: true
     /*{
@@ -105,19 +108,41 @@ function handleError() {
 recordButton.addEventListener('click', () => {
   if (recordButton.textContent === 'Start Recording') {
     if (usingMediaRecorder) {
-      startRecording();
+      if (myPlayList.length > 0) {
+        overDub(myPlayList);
+      } else {
+        startRecording();
+      };
     } else {
-      startRecordingIos();
-    }    
-  } else {
+      if (myPlayList.length > 0) {
+        overDubIos(myPlayList);
+      } else {
+        startRecordingIos();
+      };
+    } 
+  } else if (recordButton.textContent === 'Stop Recording') {
     if (usingMediaRecorder) {
       stopRecording();
     } else {
       stopRecordingIos();
+      // for iOS, have to rewarm getUserMedia
+      const constraints = {
+        audio: true
+        /*{
+          echoCancellation: {exact: hasEchoCancellation}
+        }*/,
+        video: false
+      };
+      console.log('Using media constraints:', constraints);
+      init(constraints);
     };    
-    recordButton.textContent = 'Start Recording';
+    recordButton.textContent = 'Add Recorded Track';
     playButton.disabled = false;
-  }
+  } else { // when recordButton.textContent === 'Add Recorded Track'
+    const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
+    createNewPanel(window.URL.createObjectURL(superBuffer));
+    recordButton.textContent = 'Start Recording';
+  };
 });
 //recordButton
 
@@ -462,11 +487,23 @@ playButton.addEventListener('click', () => {
 //
 const popButton = document.querySelector('button#pop');
 popButton.addEventListener('click', () => {
-  if (recordedTracks.childElementCount === 1) {
+  index = formInputDelete.value;
+  if (recordedTracks.childElementCount < 1) {
+    alert('There is no data to be deleted!');
     popButton.disabled = true;
+    return;
+  } else if (index < 1) {
+    return;
   };
-  recordedTracks.removeChild(recordedTracks.lastElementChild);
-  myPlayList.pop();
+
+  let deletedDiv = recordedTracks.childNodes[index];
+  let deletedTrack = deletedDiv.firstElementChild;
+  deletedDiv.removeChild(deletedTrack);
+  recordedTracks.removeChild(deletedDiv);
+  myPlayList.splice(index-1,1);
+  //
+  formInputDelete.setAttribute('max', recordedTracks.childElementCount);
+  formInput.setAttribute('max', recordedTracks.childElementCount)
 })
 // popButton
 
@@ -479,15 +516,17 @@ function createNewPanel(audioSrc) {
   *  4. #tracksにappend✔
   */
   let newTrack = document.createElement('audio');
-  newTrack.setAttribute('id', 'recorded');
+  let newIdx = totalIndex + 1;
+  newTrack.setAttribute('id', `recorded-${newIdx}`);
   newTrack.src = null;
   newTrack.srcObject = null;
   newTrack.src = audioSrc;
   newTrack.controls = true;
-  let newPanel = document.createElement('li');
+  let newPanel = document.createElement('div');
   /* newPanelにnewTrackやミュートスイッチ、
      ダウンロードボタンなどを納めたい */
   newPanel.appendChild(newTrack);
+  //newPanel.appendChild(checkBox);
   // プレイリストに追加
   myPlayList.push(newTrack.src);
   /*
@@ -507,9 +546,24 @@ function createNewPanel(audioSrc) {
   playallButton.disabled = false;
   popButton.disabled = false;
   //
-  formInput.setAttribute('max', recordedTracks.childElementCount-1)
+  formInputDelete.setAttribute('max', recordedTracks.childElementCount);
+  formInput.setAttribute('max', recordedTracks.childElementCount)
 }
 // createNewPanel
+
+/*
+const newIdx = recordedTracks.childNodes.length + 1;
+
+const newEl = document.createElement('div');
+newEl.innerHTML = '<audio id="audio-recording-' + newIdx + '" controls></audio>';
+recordedTracks.appendChild(newEl);
+
+const recordingEl = document.getElementById("audio-recording-" + newIdx);
+recordingEl.src = null;
+recordingEl.srcObject =null;
+recordingEl.src = audioSrc;
+//recordingEl.type = 'audio/mp3';
+*/
 
 //　ダウンロードボタン
 /*
@@ -524,12 +578,19 @@ const downloadButton = document.querySelector('button#download');
 downloadButton.addEventListener('click', () => {
 //  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
   if (recordedTracks.childElementCount < 1) {
-    alert('There is no data can be downloaded!')
+    alert('There is no data can be downloaded!');
+    downloadButton.disabled = true;
   } else {
-    let index = formInput.value;
+    load(myPlayList)
+          .then(createdBuffers => {console.log(createdBuffers[0].sampleRate); return mixDown(createdBuffers)})
+          .then(mixedBuffer => toMp3(mixedBuffer))
+          .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
+          .catch(console.log('error in downloadUrl'));
+    /*
+    index = formInput.value;
     console.log(index);
     let url = '';
-    if (index === '-1') {
+    if (index === '0') {
       url =
         load(myPlayList)
           .then(createdBuffers => {console.log(createdBuffers[0].sampleRate); return mixDown(createdBuffers)})
@@ -537,11 +598,12 @@ downloadButton.addEventListener('click', () => {
           .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
           .catch(console.log('error in downloadUrl'));
     } else {
-      let targetPanel = recordedTracks.children[index];
+      let targetPanel = recordedTracks.childNodes[index];
       let targetTrack = targetPanel.firstElementChild;
       url = targetTrack.src;
       return downloadUrl(url);
     };
+    */
   }
 });
 
@@ -620,11 +682,13 @@ overDubButton.addEventListener('click', () => {
 
 //
 function playAll(playList) {
-  load(playList)
-    .then(createdBuffer => mixDown(createdBuffer))
-    .then(mixedBuffer => ready(mixedBuffer))
-    .then(readyedBuffer => readyedBuffer.start())
-    .catch(console.log('error in playAll'));
+  if (playList.length > 0) {
+    load(playList)
+      .then(createdBuffer => mixDown(createdBuffer))
+      .then(mixedBuffer => ready(mixedBuffer))
+      .then(readyedBuffer => readyedBuffer.start())
+      .catch(console.log('error in playAll'));
+  }
 }
 
 function overDub(playList) {
