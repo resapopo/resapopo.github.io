@@ -63,9 +63,10 @@ const formInput = document.querySelector('input#index');
 document.querySelector('button#start').addEventListener('click', async () => {
   const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
-    audio: {
+    audio: true
+    /*{
       echoCancellation: {exact: hasEchoCancellation}
-    },
+    }*/,
     video: false
   };
   console.log('Using media constraints:', constraints);
