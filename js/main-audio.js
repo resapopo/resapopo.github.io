@@ -27,6 +27,8 @@ let config = {
   userMediaConstraints: { audio: { echoCancellation: false } }
 };
 
+let myStream;
+
 let inputStreamNode;
 let processorNode;
 let destinationNode;
@@ -85,7 +87,7 @@ function handleSuccess(stream) {
 
   recordButton.disabled = false;
   console.log('getUserMedia() got stream:', stream);
-  window.stream = stream;
+  myStream = stream;
 
   if (!usingMediaRecorder) {
 
@@ -142,7 +144,7 @@ function startRecording() {
   }
 
   try {
-    mediaRecorder = new MediaRecorder(window.stream, options);
+    mediaRecorder = new MediaRecorder(myStream, options);
   } catch (e) {
     console.error('Exception while creating MediaRecorder:', e);
     errorMsgElement.innerHTML = `Exception while creating MediaRecorder: ${JSON.stringify(e)}`;
@@ -192,7 +194,7 @@ function startRecordingIos() {
     closeWorker();
   });
 
-  inputStreamNode = audioCtx.createMediaStreamSource(window.stream);
+  inputStreamNode = audioCtx.createMediaStreamSource(myStream);
 
   processorNode = audioCtx.createScriptProcessor(config.processorBufferSize, 1, 1);
 
@@ -345,7 +347,7 @@ function readyRecording() {
     }
 
     try {
-      mediaRecorder = new MediaRecorder(window.stream, options);
+      mediaRecorder = new MediaRecorder(myStream, options);
     } catch (e) {
       console.error('Exception while creating MediaRecorder:', e);
       errorMsgElement.innerHTML = `Exception while creating MediaRecorder: ${JSON.stringify(e)}`;
@@ -400,7 +402,7 @@ function readyRecordingIos() {
       closeWorker();
     });
 
-    inputStreamNode = audioCtx.createMediaStreamSource(window.stream);
+    inputStreamNode = audioCtx.createMediaStreamSource(myStream);
 
     processorNode = audioCtx.createScriptProcessor(config.processorBufferSize, 1, 1);
 
