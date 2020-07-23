@@ -29,6 +29,8 @@ let config = {
 
 let myStream;
 
+let micGainNode, micSource, micDestination;
+
 let inputStreamNode;
 let processorNode;
 let destinationNode;
@@ -52,6 +54,9 @@ let myPlayList = [];
 let index;
 let totalIndex;
 
+//
+let buffer;
+
 // ハンドラの設定
 const errorMsgElement = document.querySelector('span#errorMsg');
 // const recordedAudio = document.querySelector('audio#recorded');
@@ -60,6 +65,8 @@ const errorMsgElement = document.querySelector('span#errorMsg');
 const recordedTracks = document.querySelector('div#tracks')
 const recordButton = document.querySelector('button#record');
 //
+const inputLevelSelector = document.querySelector('select#inSel');
+inputLevelSelector.addEventListener('change', changeMicrophoneLevel);
 const formInputDelete = document.querySelector('input#index_for_delete');
 const formInput = document.querySelector('input#index');
 
@@ -90,7 +97,15 @@ function handleSuccess(stream) {
 
   recordButton.disabled = false;
   console.log('getUserMedia() got stream:', stream);
-  myStream = stream;
+
+  //
+  micSource = audioCtx.createMediaStreamSource(stream);
+  micGainNode = audioCtx.createGain();
+  micDestination = audioCtx.createMediaStreamDestination();
+  micSource.connect(micGainNode).connect(micDestination);
+  // micGainNode.gain.value = 1;
+  
+  myStream = micDestination.stream;
 
   if (!usingMediaRecorder) {
 
@@ -103,6 +118,14 @@ function handleError() {
   errorMsgElement.innerHTML = `navigator.getUserMedia error:${e.toString()}`;
 };
 // access your mic
+
+// change mic level
+function changeMicrophoneLevel(e) {
+  var value = e.target.value; 
+  if(value && value >= 0 && value <= 2) { 
+   micGainNode.gain.value = value; 
+  } 
+}
 
 // レコードボタン
 recordButton.addEventListener('click', () => {
@@ -135,7 +158,8 @@ recordButton.addEventListener('click', () => {
       };
       console.log('Using media constraints:', constraints);
       init(constraints);
-    };    
+    };
+    if (buffer) {buffer.stop()};
     recordButton.textContent = 'リストに追加';
     playButton.disabled = false;
   } else { // when recordButton.textContent === 'Add Recorded Track'
@@ -670,6 +694,11 @@ playallButton.addEventListener('click', () => {
 })
 // playallButton
 
+const stopButton = document.querySelector('button#stop');
+stopButton.addEventListener('click', () => {
+  if (buffer) {buffer.stop();}
+})
+
 const overDubButton = document.querySelector('button#overdub');
 overDubButton.addEventListener('click', () => {
   if (usingMediaRecorder) {
@@ -686,7 +715,7 @@ function playAll(playList) {
     load(playList)
       .then(createdBuffer => mixDown(createdBuffer))
       .then(mixedBuffer => ready(mixedBuffer))
-      .then(readyedBuffer => readyedBuffer.start())
+      .then(readyedBuffer => {buffer=readyedBuffer; readyedBuffer.start()})
       .catch(console.log('error in playAll'));
   }
 }
@@ -699,6 +728,7 @@ function overDub(playList) {
 
   Promise.all([readyedBuffer, readyMediaRecorder])
     .then(result => {
+      buffer = result[0];
       result[0].start();
       wait(latency)
         .then(() => result[1].start())
