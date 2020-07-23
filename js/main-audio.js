@@ -38,7 +38,7 @@ let destinationNode;
 let encoderMimeType;
 
 // AudioContext is passed to mixing.js
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx;
 // ctxt = new AudioContext();
 
 // 
@@ -92,6 +92,7 @@ async function init(constraints) {
 };
 
 function handleSuccess(stream) {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   mySampleRate = audioCtx.sampleRate;
   //const src = audioCtx.createMediaStreamSource(stream);
 
