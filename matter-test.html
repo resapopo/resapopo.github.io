@@ -1,0 +1,111 @@
+<DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+
+
+  <title>積み木ずらし</title>
+
+
+
+
+</head>
+
+<body>
+  <h1>積み木を積んでみよう</h1>
+  <h2>どこまで横にずらせるかな</h2>
+
+  <div id="container"></div>
+  <button id="add">ブロック追加</button>
+  <button id="clear" hidden>リセット</button>
+  
+
+
+
+<script src='js/liabru/matter.min.js'></script>
+<script>
+  var Engine = Matter.Engine,
+      Render = Matter.Render,
+      Runner = Matter.Runner,
+      World = Matter.World,
+      Bodies = Matter.Bodies;
+      MouseConstraint = Matter.MouseConstraint,
+      Mouse = Matter.Mouse;
+  
+  // create engine
+  var engine = Engine.create(),  //物理演算エンジンを生成？
+      world = engine.world;  //重力の存在する仮想世界の生成…？
+  
+  // create renderer
+  var render = Render.create({  //レンダリングの設定？
+      element: document.body,
+      engine: engine,
+      options: {
+        width: 1000,  //ステージの横幅
+        height: 500,  //ステージの高さ
+        background: '#FFFFFF',  //ステージの背景色
+        wireframes: false  //ワイヤーフレームモードをオフ
+      }
+  });
+  
+  Render.run(render);  //ステージを配置させる記述？
+  
+  // create runner
+  var runner = Runner.create();
+  Runner.run(runner, engine);  //物理エンジンを実行？
+
+
+  let options = {
+    isStatic: true,
+    friction: 1,
+    frictionStatic: 2
+  };
+
+  let options2 = {
+    density: 1,
+    friction: 1,
+    frictionStatic: 0.7
+  }
+
+  var box1 = Bodies.rectangle(600, 0, 200, 60, options2);
+  var circle1 = Bodies.circle(200, 0, 50);
+
+  let floor = Bodies. rectangle(500, 500, 800, 40, options);
+
+  World.add(world, [box1, circle1, floor]);
+
+  // add mouse control
+  var mouse = Mouse.create(render.canvas),
+      mouseConstraint = MouseConstraint.create(engine, {
+          mouse: mouse,
+          constraint: {
+              stiffness: 0.2,
+              render: {
+                  visible: false
+              }
+          }
+      });
+  World.add(world, mouseConstraint);
+  
+  // keep the mouse in sync with rendering
+  render.mouse = mouse;
+
+  // 
+  let addButton = document.querySelector('button#add').addEventListener('click', () => {
+    var newBox = Bodies.rectangle(700, 0, 200, 60, options2);
+    World.add(world, newBox);
+  });
+
+  // 
+  let clearButton = document.querySelector('button#clear').addEventListener('click', () => {
+    World.clear(world, false);
+    World.add(world, [box1, circle1, floor]);
+    World.add(world, mouseConstraint);
+  });
+
+
+</script>
+</body>
+</html>
