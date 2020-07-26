@@ -26,6 +26,9 @@
 
 <script src='js/liabru/matter.min.js'></script>
 <script>
+  const width = window.innerWidth*0.8;
+  const height = window.innerHeight*0.7;
+
   var Engine = Matter.Engine,
       Render = Matter.Render,
       Runner = Matter.Runner,
@@ -43,8 +46,8 @@
       element: document.body,
       engine: engine,
       options: {
-        width: 1000,  //ステージの横幅
-        height: 500,  //ステージの高さ
+        width: width,  //ステージの横幅
+        height: height,  //ステージの高さ
         background: '#FFFFFF',  //ステージの背景色
         wireframes: false  //ワイヤーフレームモードをオフ
       }
@@ -69,10 +72,11 @@
     frictionStatic: 0.7
   }
 
-  var box1 = Bodies.rectangle(600, 0, 200, 60, options2);
-  var circle1 = Bodies.circle(200, 0, 50);
+  var yoko = Math.min(200, width/4);
+  var box1 = Bodies.rectangle(width*2/3, 0, yoko, yoko*0.3, options2);
+  var circle1 = Bodies.circle(width/3, 0, 50);
 
-  let floor = Bodies. rectangle(500, 500, 800, 40, options);
+  let floor = Bodies. rectangle(width/2, height, width, 40, options);
 
   World.add(world, [box1, circle1, floor]);
 
@@ -94,7 +98,7 @@
 
   // 
   let addButton = document.querySelector('button#add').addEventListener('click', () => {
-    var newBox = Bodies.rectangle(700, 0, 200, 60, options2);
+    var newBox = Bodies.rectangle(width*2/3, 0, yoko, yoko*0.3, options2);
     World.add(world, newBox);
   });
 
