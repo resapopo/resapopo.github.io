@@ -59,17 +59,18 @@
   var runner = Runner.create();
   Runner.run(runner, engine);  //物理エンジンを実行？
 
-
+  // floor
   let options = {
     isStatic: true,
     friction: 1,
-    frictionStatic: 2
+    frictionStatic: 3
   };
 
+  // boxes
   let options2 = {
     density: 1,
     friction: 1,
-    frictionStatic: 0.7
+    frictionStatic: 2
   }
 
   var yoko = Math.min(200, width/4);
