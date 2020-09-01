@@ -81,8 +81,6 @@ function mixDown(loadedBufferList) {
 
                 //last is loop for updating/summing the track buffer with the final mix buffer 
                 for(let j = 0; j < bufferList[i].length; j++){
-                  // ここで音量を調整し、sound crackingを防ぐ
-                  //
                     buffer[j] += bufferList[i].getChannelData(channel)[j];
                 }
 
@@ -108,8 +106,8 @@ function mixDown(loadedBufferList) {
 // core
 
 
-// Thanks to Linda Keating
+// Linda Keating
 // https://stackoverflow.com/questions/25040735/phonegap-mixing-audio-files
 
-// Thanks to KpTheConstructor
+// KpTheConstructor
 // https://stackoverflow.com/questions/57155167/web-audio-api-playing-synchronized-sounds

@@ -52,7 +52,7 @@ let myPlayList = [];
 
 // トラック番号
 let index;
-let totalIndex;
+let totalIndex = -1;
 
 //
 let buffer;
@@ -67,6 +67,10 @@ const recordButton = document.querySelector('button#record');
 //
 const inputLevelSelector = document.querySelector('select#inSel');
 inputLevelSelector.addEventListener('change', changeMicrophoneLevel);
+//const inputLevelMonitor = document.querySelector('span#inSel');
+//inputLevelSelector.addEventListener('change', monitorValue)
+const latencySelector = document.querySelector('select#latency');
+latencySelector.addEventListener('change', changeLatencyLevel);
 const formInputDelete = document.querySelector('input#index_for_delete');
 const formInput = document.querySelector('input#index');
 
@@ -128,18 +132,34 @@ function changeMicrophoneLevel(e) {
   } 
 }
 
+// monitor current level
+function monitorValue(e) {
+  inputLevelMonitor.innerHTML = e.target.value;
+};
+
 // レコードボタン
 recordButton.addEventListener('click', () => {
   if (recordButton.textContent === '録音') {
+    
+    let _myPlayList = [];
+    if (myPlayList.length > 0) {
+      for (var i=0; i<myPlayList.length; i++) {
+        if (recordedTracks.children[i].children[1].checked) {
+          _myPlayList.push(myPlayList[i]);
+        }
+      }
+    };
+    
+    
     if (usingMediaRecorder) {
-      if (myPlayList.length > 0) {
-        overDub(myPlayList);
+      if (_myPlayList.length > 0) {
+        overDub(_myPlayList);
       } else {
         startRecording();
       };
     } else {
-      if (myPlayList.length > 0) {
-        overDubIos(myPlayList);
+      if (_myPlayList.length > 0) {
+        overDubIos(_myPlayList);
       } else {
         startRecordingIos();
       };
@@ -514,12 +534,17 @@ const popButton = document.querySelector('button#pop');
 popButton.addEventListener('click', () => {
   index = formInputDelete.value;
   if (recordedTracks.childElementCount < 1) {
-    alert('There is no data to be deleted!');
+    alert('There is no data to be deleted! (消すデータがありません)');
     popButton.disabled = true;
     return;
+  } else if (index > recordedTracks.childElementCount) {
+    alert('There is such a data! (そんなデータはありません)')
   } else if (index < 1) {
     return;
   };
+
+  var isYourDecision = confirm(`We delite the track-${index}. (トラック${index}を消してもいいですか)`);
+  if (!isYourDecision) {return};
 
   let deletedDiv = recordedTracks.childNodes[index];
   let deletedTrack = deletedDiv.firstElementChild;
@@ -550,8 +575,15 @@ function createNewPanel(audioSrc) {
   let newPanel = document.createElement('div');
   /* newPanelにnewTrackやミュートスイッチ、
      ダウンロードボタンなどを納めたい */
+  
+//  newPanel.innerHTML = '<input type = "checkbox", checked></input>'; 
   newPanel.appendChild(newTrack);
-  //newPanel.appendChild(checkBox);
+
+  let checkBox = document.createElement('input');
+  checkBox.setAttribute('type', 'checkbox');
+  checkBox.setAttribute('checked', 'true');
+  newPanel.appendChild(checkBox);
+
   // プレイリストに追加
   myPlayList.push(newTrack.src);
   /*
@@ -598,7 +630,7 @@ recordingEl.src = audioSrc;
 *      不正な値ならエラーを出力
 */
 
-// 一回しかダウンロードできない
+// 
 const downloadButton = document.querySelector('button#download');
 downloadButton.addEventListener('click', () => {
 //  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
@@ -606,7 +638,16 @@ downloadButton.addEventListener('click', () => {
     alert('There is no data can be downloaded!');
     downloadButton.disabled = true;
   } else {
-    load(myPlayList)
+    let _myPlayList = [];
+    if (myPlayList.length > 0) {
+      for (var i=0; i<myPlayList.length; i++) {
+        if (recordedTracks.children[i].children[1].checked) {
+          _myPlayList.push(myPlayList[i]);
+        }
+      }
+    };
+
+    load(_myPlayList)
           .then(createdBuffers => {console.log(createdBuffers[0].sampleRate); return mixDown(createdBuffers)})
           .then(mixedBuffer => toMp3(mixedBuffer))
           .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
@@ -691,7 +732,48 @@ function downloadUrl(url) {
 // 全部同時に再生, mixing.js
 const playallButton = document.querySelector('button#playall');
 playallButton.addEventListener('click', () => {
-  playAll(myPlayList);
+  let _myPlayList = [];
+    if (myPlayList.length > 0) {
+      for (var i=0; i<myPlayList.length; i++) {
+        if (recordedTracks.children[i].children[1].checked) {
+          console.log(`track ${i} is active`);
+
+          /*
+          var audioEl = document.querySelector(`audio#recorded-${i}`);
+          console.log(audioEl);
+          console.log(audioEl instanceof HTMLMediaElement);
+          if (audioEl instanceof HTMLMediaElement) {
+          var trk = audioCtx.createMediaElementSource(audioEl);
+
+          var source = audioCtx.createMediaElementSource(trk);
+          var gainNode = audioCtx.createGain();
+          var destination = audioCtx.createMediaStreamDestination();
+          source.connect(gainNode).connect(destination);
+
+          _myPlayList.push(window.URL.createObjectURL(destination.stream));
+          };
+          */
+
+          _myPlayList.push(myPlayList[i]);
+          //console.log(_myPlayList);
+        }
+      }
+    };
+  //console.log(_myPlayList);
+
+  /*
+  for (var i=0; i<_myPlayList.length; i++) {
+    var source = audioCtx.createMediaElementSource();
+    var gainNode = audioCtx.createGain();
+    var destination = audioCtx.createMediaStreamDestination();
+    source.connect(gainNode).connect(destination);
+    // micGainNode.gain.value = 1;
+
+    _myPlayList[i] = window.URL.createObjectURL(destination.stream);
+  };
+  */
+
+  playAll(_myPlayList);
 })
 // playallButton
 
@@ -760,6 +842,15 @@ let latency = 100;
 
 const wait = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// change latency level
+function changeLatencyLevel(e) {
+  var value = e.target.value; 
+//  if(value && value >= 0 && value <= 2) { 
+   latency = value; 
+   console.log(`latency changed: ${latency}`);
+//  } 
 };
 
 function ready(audioBuffer) {
