@@ -1,13 +1,12 @@
-/*
+
+/* This code is based on
+*  https://rawgit.com/Miguelao/demos/master/mediarecorder.html
 *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
 *
-*  Use of this source code is governed by a BSD-style license
+*  Use of the above source code is governed by a BSD-style license
 *  that can be found in the LICENSE file in the root of the source
 *  tree.
 */
-
-// This code is adapted from
-// https://rawgit.com/Miguelao/demos/master/mediarecorder.html
 
 'use strict';
 
@@ -27,6 +26,25 @@ let config = {
   userMediaConstraints: { audio: { echoCancellation: false } }
 };
 
+// コーデックを推奨順に指定
+let options = {mimeType: 'audio/ogg; codecs=opus'};
+if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+  console.log(`${options.mimeType} is not supported`);
+  options = {mimeType: 'audio/ogg; codecs=vorbis'};
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    console.log(`${options.mimeType} is not supported`);
+    options = {mimeType: 'audio/webm; codecs=opus'};
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      console.log(`${options.mimeType} is not supported`);
+      options = {mimeType: 'audio/mpeg'};
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        console.error(`${options.mimeType} is not supported`);
+        options = {mimeType: ''};
+      }
+    }
+  }
+}
+
 let myStream;
 
 let micGainNode, micSource, micDestination;
@@ -42,13 +60,16 @@ let audioCtx;
 // ctxt = new AudioContext();
 
 // 
-let mySampleRate;
+let mySampleRate = 48000; // ad hoc!
 
 // 録音生データを格納
 let recordedBlobs;
 
 // 再生が有効なaudioへのアクセスを格納
 let myPlayList = [];
+
+// selectedGainsを格納
+let myGains = [];
 
 // トラック番号
 let index;
@@ -72,7 +93,7 @@ inputLevelSelector.addEventListener('change', changeMicrophoneLevel);
 const latencySelector = document.querySelector('select#latency');
 latencySelector.addEventListener('change', changeLatencyLevel);
 const formInputDelete = document.querySelector('input#index_for_delete');
-const formInput = document.querySelector('input#index');
+//const formInput = document.querySelector('input#index');
 
 
 // access your mic
@@ -142,10 +163,13 @@ recordButton.addEventListener('click', () => {
   if (recordButton.textContent === '録音') {
     
     let _myPlayList = [];
+    let _myGains = [];
     if (myPlayList.length > 0) {
       for (var i=0; i<myPlayList.length; i++) {
         if (recordedTracks.children[i].children[1].checked) {
           _myPlayList.push(myPlayList[i]);
+          var g = recordedTracks.children[i].children[2].value*0.01;
+          _myGains.push(g);
         }
       }
     };
@@ -153,7 +177,7 @@ recordButton.addEventListener('click', () => {
     
     if (usingMediaRecorder) {
       if (_myPlayList.length > 0) {
-        overDub(_myPlayList);
+        overDub(_myPlayList, _myGains);
       } else {
         startRecording();
       };
@@ -194,24 +218,6 @@ recordButton.addEventListener('click', () => {
 function startRecording() {
   // 初期化
   recordedBlobs = [];
-  // コーデックを推奨順に指定
-  let options = {mimeType: 'audio/ogg; codecs=opus'};
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-    console.log(`${options.mimeType} is not supported`);
-    options = {mimeType: 'audio/ogg; codecs=vorbis'};
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.log(`${options.mimeType} is not supported`);
-      options = {mimeType: 'audio/webm; codecs=opus'};
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log(`${options.mimeType} is not supported`);
-        options = {mimeType: 'audio/mpeg'};
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          console.error(`${options.mimeType} is not supported`);
-          options = {mimeType: ''};
-        }
-      }
-    }
-  }
 
   try {
     mediaRecorder = new MediaRecorder(myStream, options);
@@ -397,25 +403,6 @@ function readyRecording() {
     // 初期化
     recordedBlobs = [];
 
-    // コーデックを推奨順に指定
-    let options = {mimeType: 'audio/ogg; codecs=opus'};
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.log(`${options.mimeType} is not supported`);
-      options = {mimeType: 'audio/ogg; codecs=vorbis'};
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log(`${options.mimeType} is not supported`);
-        options = {mimeType: 'audio/webm; codecs=opus'};
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          console.log(`${options.mimeType} is not supported`);
-          options = {mimeType: 'audio/mpeg'};
-          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-            console.error(`${options.mimeType} is not supported`);
-            options = {mimeType: ''};
-          }
-        }
-      }
-    }
-
     try {
       mediaRecorder = new MediaRecorder(myStream, options);
     } catch (e) {
@@ -538,13 +525,15 @@ popButton.addEventListener('click', () => {
     popButton.disabled = true;
     return;
   } else if (index > recordedTracks.childElementCount) {
-    alert('There is such a data! (そんなデータはありません)')
+    alert('There is not such a data! (そんなデータはありません)')
   } else if (index < 1) {
     return;
   };
 
-  var isYourDecision = confirm(`We delite the track-${index}. (トラック${index}を消してもいいですか)`);
-  if (!isYourDecision) {return};
+  //if (recordedTracks.childNodes[index].childNodes[2] = 'new') {
+    var isYourDecision = confirm(`Make sure to delite the track-${index}. (トラック${index}を消してもいいですか)`);
+    if (!isYourDecision) {return};
+  //} else {return};
 
   let deletedDiv = recordedTracks.childNodes[index];
   let deletedTrack = deletedDiv.firstElementChild;
@@ -553,12 +542,12 @@ popButton.addEventListener('click', () => {
   myPlayList.splice(index-1,1);
   //
   formInputDelete.setAttribute('max', recordedTracks.childElementCount);
-  formInput.setAttribute('max', recordedTracks.childElementCount)
+  //formInput.setAttribute('max', recordedTracks.childElementCount)
 })
 // popButton
 
 
-function createNewPanel(audioSrc) {
+function createNewPanel(audioSrc, givenName = 'new') {
   /* 
   *  1. create new audio element✔
   *  2. ソースをsuperBufferで与える✔
@@ -571,7 +560,7 @@ function createNewPanel(audioSrc) {
   newTrack.src = null;
   newTrack.srcObject = null;
   newTrack.src = audioSrc;
-  newTrack.controls = true;
+  newTrack.controls = false;
   let newPanel = document.createElement('div');
   /* newPanelにnewTrackやミュートスイッチ、
      ダウンロードボタンなどを納めたい */
@@ -583,6 +572,19 @@ function createNewPanel(audioSrc) {
   checkBox.setAttribute('type', 'checkbox');
   checkBox.setAttribute('checked', 'true');
   newPanel.appendChild(checkBox);
+
+  let selectedGain = document.createElement('input');
+  selectedGain.setAttribute('type', 'number');
+  selectedGain.setAttribute('id', 'selGain');
+  selectedGain.setAttribute('value', '100');
+  selectedGain.setAttribute('step', '1');
+  selectedGain.setAttribute('min', '0');
+  selectedGain.setAttribute('max', '100');
+  newPanel.appendChild(selectedGain);
+
+  let trackName = document.createElement('span');
+  trackName.innerText = givenName;
+  newPanel.appendChild(trackName);
 
   // プレイリストに追加
   myPlayList.push(newTrack.src);
@@ -604,7 +606,7 @@ function createNewPanel(audioSrc) {
   popButton.disabled = false;
   //
   formInputDelete.setAttribute('max', recordedTracks.childElementCount);
-  formInput.setAttribute('max', recordedTracks.childElementCount)
+  //formInput.setAttribute('max', recordedTracks.childElementCount)
 }
 // createNewPanel
 
@@ -639,16 +641,20 @@ downloadButton.addEventListener('click', () => {
     downloadButton.disabled = true;
   } else {
     let _myPlayList = [];
+    let _myGains = [];
     if (myPlayList.length > 0) {
       for (var i=0; i<myPlayList.length; i++) {
         if (recordedTracks.children[i].children[1].checked) {
           _myPlayList.push(myPlayList[i]);
+          var g = recordedTracks.children[i].children[2].value*0.01;
+          _myGains.push(g);
         }
       }
+      //console.log(_myGains);
     };
 
     load(_myPlayList)
-          .then(createdBuffers => {console.log(createdBuffers[0].sampleRate); return mixDown(createdBuffers)})
+          .then(createdBuffers => {console.log(createdBuffers[0].sampleRate); return mixDown(createdBuffers, _myGains)})
           .then(mixedBuffer => toMp3(mixedBuffer))
           .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
           .catch(console.log('error in downloadUrl'));
@@ -733,31 +739,19 @@ function downloadUrl(url) {
 const playallButton = document.querySelector('button#playall');
 playallButton.addEventListener('click', () => {
   let _myPlayList = [];
+  let _myGains = [];
     if (myPlayList.length > 0) {
       for (var i=0; i<myPlayList.length; i++) {
         if (recordedTracks.children[i].children[1].checked) {
           console.log(`track ${i} is active`);
 
-          /*
-          var audioEl = document.querySelector(`audio#recorded-${i}`);
-          console.log(audioEl);
-          console.log(audioEl instanceof HTMLMediaElement);
-          if (audioEl instanceof HTMLMediaElement) {
-          var trk = audioCtx.createMediaElementSource(audioEl);
-
-          var source = audioCtx.createMediaElementSource(trk);
-          var gainNode = audioCtx.createGain();
-          var destination = audioCtx.createMediaStreamDestination();
-          source.connect(gainNode).connect(destination);
-
-          _myPlayList.push(window.URL.createObjectURL(destination.stream));
-          };
-          */
-
           _myPlayList.push(myPlayList[i]);
-          //console.log(_myPlayList);
-        }
-      }
+          var g = recordedTracks.children[i].children[2].value*0.01
+          _myGains.push(g);
+        };
+      };
+      console.log(_myPlayList);
+      console.log(`_myGains:${_myGains}`);
     };
   //console.log(_myPlayList);
 
@@ -773,7 +767,7 @@ playallButton.addEventListener('click', () => {
   };
   */
 
-  playAll(_myPlayList);
+  playAll(_myPlayList, _myGains);
 })
 // playallButton
 
@@ -785,7 +779,7 @@ stopButton.addEventListener('click', () => {
 const overDubButton = document.querySelector('button#overdub');
 overDubButton.addEventListener('click', () => {
   if (usingMediaRecorder) {
-    overDub(myPlayList);
+    overDub(myPlayList, myGains);
   } else {
     overDubIos(myPlayList);
   }
@@ -793,18 +787,18 @@ overDubButton.addEventListener('click', () => {
 
 
 //
-function playAll(playList) {
+function playAll(playList, gains) {
   if (playList.length > 0) {
     load(playList)
-      .then(createdBuffer => mixDown(createdBuffer))
+      .then(createdBuffer => mixDown(createdBuffer, gains))
       .then(mixedBuffer => ready(mixedBuffer))
       .then(readyedBuffer => {buffer=readyedBuffer; readyedBuffer.start()})
       .catch(console.log('error in playAll'));
   }
 }
 
-function overDub(playList) {
-  let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer))
+function overDub(playList, gains) {
+  let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer, gains))
                                   .then(mixedBuffer => ready(mixedBuffer))
                                   .catch(console.log('error in overDub'));
   let readyMediaRecorder = readyRecording();
@@ -873,7 +867,7 @@ const uploadButton = document.querySelector('input#upload');
 uploadButton.addEventListener('change', function(e) {
   var file = e.target.files[0]; 
   // Do something with the audio file.
-  createNewPanel(URL.createObjectURL(file));
+  createNewPanel(URL.createObjectURL(file), file.name);
 });
 
 /* アップロードしたファイルが含まれていると、playAllできない

@@ -35,3 +35,50 @@ video:last-of-type {
 video#gumVideo {
   margin: 0 20px 20px 0;
 }
+
+/* Spin Buttons modified */
+input[type="number"].mod::-webkit-outer-spin-button, 
+input[type="number"].mod::-webkit-inner-spin-button {
+  /*
+    -webkit-appearance: none;
+    background: forestgreen; url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVQYlWNgwAT/sYhhKPiPT+F/LJgEsHv37v+EMGkmkuImoh2NoQAANlcun/q4OoYAAAAASUVORK5CYII=) no-repeat center center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1em;
+    border-left: 1px solid #bbb;
+  */
+    opacity: .5; /* shows Spin Buttons per default (Chrome >= 39) */
+}
+
+input[type=number] {
+  width: 9vw;
+  height: 10vw;
+  max-width: 42px;
+  max-height: 52px;
+  text-align: center;
+  -moz-border-radius: 1px;
+  -webkit-border-radius: 1px;
+  border-radius: 1px;
+  text-align: center;
+  border: 3px solid black;
+  display: inline-block;
+  margin-left: 6%;
+  background-color: black;
+  color: white;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    background: #eee url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;  
+    width: 14px;
+    height: 14px;
+    padding: 4px;
+    position: relative;
+    right: 4px;
+    border-radius: 28px;
+}

@@ -52,23 +52,36 @@ function load(playList) {
 }
 
 
-function mixDown(loadedBufferList) {
+function mixDown(loadedBufferList, givenGains) {
 
   // procedure
   //
   let maxBufferLength = getSongLength(loadedBufferList);
 
   //call our function here
-  let ourNumberOfChannels = 1;
+  let ourNumberOfChannels = 1; // should be automatic!
+
+  /*test (comment out in use)
+  givenGains = [];
+  var l = 1/loadedBufferList.length;
+  for (var i=0; i<loadedBufferList.length; i++) {
+    givenGains.push(l);
+  };
+  */
+
+  console.log(givenGains);
+
   // return AudioBuffer
-  return _mixDown(loadedBufferList, maxBufferLength, ourNumberOfChannels);
+  return _mixDown(loadedBufferList, maxBufferLength, ourNumberOfChannels, givenGains);
 
   // functions
   //
-  function _mixDown(bufferList, totalLength, numberOfChannels = 2){
+  function _mixDown(bufferList, totalLength, numberOfChannels = 2, gains){
 
     //create a buffer using the totalLength and sampleRate of the first buffer node
     let finalMix = context.createBuffer(numberOfChannels, totalLength, bufferList[0].sampleRate);
+
+    //let listLength = bufferList.length;
 
     //first loop for buffer list
     for(let i = 0; i < bufferList.length; i++){
@@ -81,7 +94,9 @@ function mixDown(loadedBufferList) {
 
                 //last is loop for updating/summing the track buffer with the final mix buffer 
                 for(let j = 0; j < bufferList[i].length; j++){
-                    buffer[j] += bufferList[i].getChannelData(channel)[j];
+                  //multiple gains
+                  var _buffer = bufferList[i].getChannelData(channel)[j]*gains[i];
+                  buffer[j] += _buffer;
                 }
 
           }
@@ -105,9 +120,13 @@ function mixDown(loadedBufferList) {
 }
 // core
 
+/*
+*  Acknowledgments
 
-// Linda Keating
-// https://stackoverflow.com/questions/25040735/phonegap-mixing-audio-files
+*  Linda Keating
+*  https://stackoverflow.com/questions/25040735/phonegap-mixing-audio-files
 
-// KpTheConstructor
-// https://stackoverflow.com/questions/57155167/web-audio-api-playing-synchronized-sounds
+*  KpTheConstructor
+*  https://stackoverflow.com/questions/57155167/web-audio-api-playing-synchronized-sounds
+
+*/

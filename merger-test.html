@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MergerNode Test</title>
+</head>
+
+<body>
+
+  <input type="file" accept="audio/*" id="upload"></input>
+  <button id="playall" disabled>再生</button>
+  <button id="stop">停止</button>
+
+
+  <button id="test">クリック</button>
+  
+  <div id="tracks">
+       
+  </div>
+
+  <script>
+
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const recordedTracks = document.querySelector('div#tracks')
+  const uploadButton = document.querySelector('input#upload');
+  const playallButton = document.querySelector('button#playall');
+  const testButton = document.querySelector('button#test');
+
+  testButton.addEventListener('click', function() {
+    var audio = new Audio('download/farewell-gift.mp3');
+    console.log(audio);
+//    audio.addEventListener('loadstart', function() {
+    // Create the instance of MediaElementAudioSourceNode
+      var source = audioCtx.createMediaElementSource(audio);
+      source.connect(audioCtx.destination);
+      audio.play();
+//    }, false);
+  })
+
+  const sources = [];
+  const gainNodes = [];
+  let idx = 0;
+  
+  uploadButton.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    var audioSrc = URL.createObjectURL(file);
+    var newTrack = document.createElement('audio');
+    newTrack.src = null;
+    newTrack.srcObject = null;
+    newTrack.src = audioSrc;
+    newTrack.controls = false;
+
+    recordedTracks.appendChild(newTrack);
+
+    newTrack.addEventListener('loadstart', function() {
+    // Create the instance of MediaElementAudioSourceNode
+      var source = audioCtx.createMediaElementSource(newTrack);
+      var gainNode = audioCtx.createGain();
+      var dest = audioCtx.destination;
+
+      source.connect(gainNode);
+      gainNode.connect(dest);
+
+      sources.push(newTrack);
+      gainNodes.push(gainNode);
+
+    }, false);
+
+    idx++; 
+    
+    //downloadButton.disabled = false;
+    playallButton.disabled = false;
+  });
+
+  playallButton.addEventListener('click', () => {
+    var merger = audioCtx.createChannelMerger(idx);
+    var destination = audioCtx.destination;
+    for (var i = 0; i < idx; i++) {
+      gainNodes[i].connect(merger);
+    };
+    merger.connect(destination);
+    for (var i = 0; i < idx; i++) {
+      sources[i].play();
+      wait(100);
+    };
+  });
+
+  const wait = ms => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  };
+
+  </script>
+
+</body>
+
+</html>
