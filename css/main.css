@@ -1,10 +1,13 @@
 /*
+ *  This code is based on
+ *  https://rawgit.com/Miguelao/demos/master/mediarecorder.html
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
- *
- *  Use of this source code is governed by a BSD-style license
+ *　
+ *  Use of the above source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
  *  tree.
- */
+*/
+
  button {
   margin: 0 3px 10px 0;
   padding-left: 2px;
@@ -19,21 +22,6 @@ button:last-of-type {
 p.borderBelow {
   margin: 0 0 20px 0;
   padding: 0 0 20px 0;
-}
-
-video {
-  vertical-align: top;
-  --width: 25vw;
-  width: var(--width);
-  height: calc(var(--width) * 0.5625);
-}
-
-video:last-of-type {
-  margin: 0 0 20px 0;
-}
-
-video#gumVideo {
-  margin: 0 20px 20px 0;
 }
 
 /* Spin Buttons modified */
@@ -53,20 +41,25 @@ input[type="number"].mod::-webkit-inner-spin-button {
 }
 
 input[type=number] {
-  width: 9vw;
+  width: 90%;
   height: 10vw;
-  max-width: 42px;
-  max-height: 52px;
+  max-width: 40px;
+  max-height: 60px;
   text-align: center;
   -moz-border-radius: 1px;
   -webkit-border-radius: 1px;
   border-radius: 1px;
   text-align: center;
-  border: 3px solid black;
+  /*border: 3px solid black;*/
   display: inline-block;
-  margin-left: 6%;
-  background-color: black;
+  /*margin-left: 6%;*/
+  background-color: cadetblue;
   color: white;
+}
+
+input#inSel[type=number] {
+  width: 90%;
+  max-width: none;
 }
 
 input::-webkit-outer-spin-button,
@@ -81,4 +74,99 @@ input::-webkit-inner-spin-button {
     position: relative;
     right: 4px;
     border-radius: 28px;
+}
+
+header {
+  background-color: burlywood;
+  grid-area: header;
+  display: flex;
+}
+
+#controler-0 {
+  background-color: aqua;
+}
+
+#controler-1 {
+  background-color: gray;
+}
+
+#display {
+  background-color: aqua;
+}
+
+#footer {
+  background-color: gray;
+  grid-area: footer;
+  align-content: center;
+}
+
+
+[type="range"] {
+  width: 90%;
+}
+
+
+[type="range"] {
+
+        -webkit-transform:rotate(-90deg);
+           -moz-transform:rotate(-90deg);
+             -o-transform:rotate(-90deg);
+                transform:rotate(-90deg);
+}
+*/
+
+
+#sidenav {
+  height: auto; 
+  width:auto;  
+  /*z-index: 1;*/ 
+  /*top: 80px;*/ 
+  background-color: gray; 
+  overflow-x: hidden; 
+  padding-top: 10px;
+  grid-area: sidebar;
+}
+
+
+body {
+  display: grid;
+  grid-template-areas:
+     "header header"
+     "sidebar content"
+     "footer footer";
+  grid-template-columns: 1fr 5fr;
+  grid-gap: 20px;
+}
+
+#controler-0 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+#controler-1 {
+  /*margin-left: 160px; /* Same as the width of the sidebar */
+  padding: 0px 10px;
+  grid-area: content;
+}
+
+#panel {
+  margin: 5px;
+  background-color: cadetblue;
+}
+
+#upload {
+  margin: 5px;
+  background-color: cadetblue;
+}
+
+header img {
+  display: block;
+  height: 40px;
+  padding-top: 20.15px;
+  margin: 5px;
+}
+
+input#delete {
+  color: orangered;
+  background-color: orangered;
 }

@@ -2,9 +2,7 @@
 //
 
 
-// core
-//
-// PromiseOb
+// Return decoded audioBuffers as a PromiseOb
 function load(playList) {
   return new Promise ((resolve, reject) => {
     // Fix up prefixing
@@ -17,17 +15,9 @@ function load(playList) {
 
     for (var i = 0; i < playList.length; i++) {
       // Load buffer asynchronously
-      // console.log(playList[i]);
       bufferList[i] = fetch(playList[i])
-        .then(function(response) {
-          let buffer = response.arrayBuffer();
-          console.log(buffer);
-          return buffer;
-        })
-        .then(function(arrayBuffer) {
-          let audioBuffer = context.decodeAudioData(arrayBuffer, succeessHandle, errorHandle);
-          return audioBuffer;
-        })
+        .then((response) => response.arrayBuffer())
+        .then((arrayBuffer) => context.decodeAudioData(arrayBuffer, succeessHandle, errorHandle))
         .catch(function() {
           console.log('error in fetch')
         });
@@ -54,34 +44,28 @@ function load(playList) {
 
 function mixDown(loadedBufferList, givenGains) {
 
-  // procedure
-  //
   let maxBufferLength = getSongLength(loadedBufferList);
 
-  //call our function here
   let ourNumberOfChannels = 1; // should be automatic!
 
-  /*test (comment out in use)
-  givenGains = [];
-  var l = 1/loadedBufferList.length;
-  for (var i=0; i<loadedBufferList.length; i++) {
-    givenGains.push(l);
-  };
-  */
-
-  console.log(givenGains);
-
-  // return AudioBuffer
   return _mixDown(loadedBufferList, maxBufferLength, ourNumberOfChannels, givenGains);
 
-  // functions
-  //
+  function getSongLength(arrayOfAudioBuffers) {
+    let songLength = 0;
+
+    for(let track of arrayOfAudioBuffers){
+        if(track.length > songLength){
+            songLength = track.length;
+        }
+    };
+
+    return songLength
+  }
+
   function _mixDown(bufferList, totalLength, numberOfChannels = 2, gains){
 
     //create a buffer using the totalLength and sampleRate of the first buffer node
     let finalMix = context.createBuffer(numberOfChannels, totalLength, bufferList[0].sampleRate);
-
-    //let listLength = bufferList.length;
 
     //first loop for buffer list
     for(let i = 0; i < bufferList.length; i++){
@@ -105,18 +89,6 @@ function mixDown(loadedBufferList, givenGains) {
     return finalMix;
   }
 
-  function getSongLength(arrayOfAudioBuffers) {
-    let songLength = 0;
-
-    for(let track of arrayOfAudioBuffers){
-        if(track.length > songLength){
-            songLength = track.length;
-        }
-    };
-
-    return songLength
-  }
-  //
 }
 // core
 
