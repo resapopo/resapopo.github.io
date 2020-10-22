@@ -8,6 +8,15 @@
  *  that can be found in the LICENSE file in the root of the source
  *  tree.
 -->
+<!--This app is based on MediaStream Recording
+    in the series of
+    <a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>. 
+    For more information see the MediaStream Recording API <a
+    href="http://w3c.github.io/mediacapture-record/MediaRecorder.html"
+        title="W3C MediaStream Recording API Editor's Draft">Editor's&nbsp;Draft</a>.
+    </p>
+    <p><a href="audio-record.html">Draft version</a></p>
+-->
 <html>
 <head>
 
@@ -20,7 +29,7 @@
 
     <base target="_blank">
 
-    <title>Remote Recording Web Assistant</title>
+    <title>ハモレコ</title>
 
     <link rel="stylesheet" href="css/main.css">
 
@@ -28,110 +37,56 @@
 
 <body>
 
-<div id="container">
+<header>
+    <h1>ハモレコ</h1>
+    <img src="bellBox.jpg" alt="test logo">
+</header>
 
-    <h1>リモート録音Webアシスタント</h1>
+
+<div id="sidenav">
     <button id="start">マイクオン</button>
-    <label>録音レベル</label>
-    <!--
-    <input type="range" id="inSel" min="0.1" max="2" value="1" step="0.1">
-    <span id="inSel">1</span>
-    -->
-    <select id="inSel">
-        <option value="0.2">1</option>
-        <option value="0.4">2</option>
-        <option value="0.6">3</option>
-        <option value="0.8">4</option>
-        <option value="1.0" selected>5</option>
-        <option value="1.2">6</option>
-        <option value="1.4">7</option>
-        <option value="1.6">8</option>
-        <option value="1.8">9</option>
-        <option value="2.0">10</option>
-    </select>
+    <button id="record" disabled hidden>録音</button>
 
-    <label>レイテンシー (ms)</label>
-    <select id="latency">
-        <option value="100">100</option>
-        <option value="125">125</option>
-        <option value="150" selected>150</option>
-        <option value="175">175</option>
-        <option value="200">200</option>
-        <option value="225">225</option>
-    </select>
+    </br>
 
-    <!-- bottons -->
-    <div id="controler-1">
-        <button id="record" disabled>録音</button>
-        <input type="file" accept="audio/*" id="upload"></input>
-        <button id="playall" disabled>再生</button>
-        <button id="stop">停止</button>
-        <button id="play" disabled hidden>Push</button>
-        <button id="download" disabled>ダウンロード</button>
-        <!--<input type="number" id="index" name="track_number" value="0"
-               min="0" max="0" hidden>
-        -->
-        
-        <button id="overdub" hidden>Over Dubbing</button>
+    <div id="controler-0">
+        <label id="inSel">レベル</label>
+        <label id="latency">レイテンシ</label>
+
+        <input type="number" id="inSel" value="5" min="1" max="10">
+        <!-- value * 0.2 = micLevel -->
+
+        <input type="range" id="latency" min="100" max="250" value="150" step="1">
     </div>
+</div>
+
+<div id="controler-1">
+    <button id="playall" disabled>再生</button>
+    <button id="pop" disabled>編集</button>
+    <button id="download" disabled>ダウンロード</button>
 
     <!-- store recorded tracks -->
-    <div id="tracks">
-       
+    <div id="display">
+        <div id="tracks"></div>
+
+        <input type="file" accept="audio/*" id="upload"></input>
     </div>
-    <div id="controler-2">
-        <button id="pop" disabled>削除:</button>
-        <input type="number" id="index_for_delete" name="track_number_for_delete" value="0"
-               min="0" max="0">
-    </div>
-
-    <!--
-    <div id="options">
-        <h4>Media Stream Constraints options</h4>
-        <p>(Experimental)Echo cancellation: <input type="checkbox" id="echoCancellation"></p>
-    </div>
-
-    <div>
-        <span id="errorMsg"></span>
-    </div>
-    -->
-
-
-
 </div>
 
 <div id="footer">
-    <!--
-    <a href="https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/record"
-       title="View source for this page on GitHub" id="viewSource">View source on GitHub</a>
-    -->
-    <p> This app is based on MediaStream Recording
-        in the series of
-        <a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>. 
-        <!-- For more information see the MediaStream Recording API <a
-            href="http://w3c.github.io/mediacapture-record/MediaRecorder.html"
-            title="W3C MediaStream Recording API Editor's Draft">Editor's&nbsp;Draft</a>.
-        -->
-    </p>
-    <p><a href="audio-record.html">Draft version</a></p>
+
+    <span>©</span>
 
 </div>
 
 <!-- include adapter for srcObject shim -->
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<!-- localでhowler.jsを読み込み -->
-<!--<script src="js/howler.js" async></script>-->
-<!-- cdnからhowler.min.jsを読み込み -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script> -->
+<!--<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>-->
 <!-- mainのjsを読み込み -->
 <script src="js/main-audio.js" async></script>
 <!-- load mixing.js -->
 <script src="js/mixing-new.js" async></script>
 <!-- load lame.all.js -->
 <script src='js/lame.all.js'></script>
-<!--
-<script src="../../../js/lib/ga.js"></script>
--->
 
 </body>
 </html>
