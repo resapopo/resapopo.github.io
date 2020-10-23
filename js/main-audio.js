@@ -27,18 +27,20 @@ let config = {
 
 // set codec in recomended order
 let options = {mimeType: 'audio/ogg; codecs=opus'};
-if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-  console.log(`${options.mimeType} is not supported`);
-  options = {mimeType: 'audio/ogg; codecs=vorbis'};
+if (usingMediaRecorder) {
   if (!MediaRecorder.isTypeSupported(options.mimeType)) {
     console.log(`${options.mimeType} is not supported`);
-    options = {mimeType: 'audio/webm; codecs=opus'};
+    options = {mimeType: 'audio/ogg; codecs=vorbis'};
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
       console.log(`${options.mimeType} is not supported`);
-      options = {mimeType: 'audio/mpeg'};
+      options = {mimeType: 'audio/webm; codecs=opus'};
       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.error(`${options.mimeType} is not supported`);
-        options = {mimeType: ''};
+        console.log(`${options.mimeType} is not supported`);
+        options = {mimeType: 'audio/mpeg'};
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.error(`${options.mimeType} is not supported`);
+          options = {mimeType: ''};
+        }
       }
     }
   }
