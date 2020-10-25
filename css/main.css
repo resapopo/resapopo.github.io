@@ -67,7 +67,7 @@ input::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-    background: #eee url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;  
+    background: #eee; /* url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;*/  
     width: 14px;
     height: 14px;
     padding: 4px;

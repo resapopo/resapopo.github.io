@@ -16,6 +16,7 @@
 let mediaRecorder;
 let encoderWorker;
 let usingMediaRecorder = typeof window.MediaRecorder !== 'undefined';
+  //false;
 let config = {
   manualEncoderId: 'wav',
   micGain: 1.0,
@@ -167,7 +168,7 @@ recordButton.addEventListener('click', () => {
       if (usingMediaRecorder) {
         overDub(_myPlayList, _myGains);
       } else {
-        overDubIos(_myPlayList);
+        overDubIos(_myPlayList, _myGains);
       };
     } else {
       if (usingMediaRecorder) {
@@ -275,7 +276,6 @@ function startRecordingIos() {
   recordedBlobs = [];
 
   recordButton.textContent = '停止';
-  playButton.disabled = true;
   downloadButton.disabled = true;
 
   // for ios, edge
@@ -326,6 +326,10 @@ function handleDataAvailableIos(blob) {
   };
     console.log('Recorder stopped: ', blob);
     console.log('Recorded Blobs: ', recordedBlobs);
+
+    const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
+    createNewPanel(window.URL.createObjectURL(superBuffer));
+    recordButton.textContent = '録音';
 };
 
 function closeWorker() {
@@ -654,10 +658,10 @@ function readyRecording() {
   
 }
 
-function overDubIos(playList) {
-  let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer))
+function overDubIos(playList, gains) {
+  let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer, gains))
                                   .then(mixedBuffer => ready(mixedBuffer))
-                                  .catch(console.log('error in overDub'));
+                                  .catch(e => console.error(e));
   let readyEncoderWorker = readyRecordingIos();
 
   Promise.all([readyedBuffer, readyEncoderWorker])
@@ -677,7 +681,6 @@ function readyRecordingIos() {
     recordedBlobs = [];
 
     recordButton.textContent = '停止';
-    playButton.disabled = true;
     downloadButton.disabled = true;
   
     // for ios, edge
