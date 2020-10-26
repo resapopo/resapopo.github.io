@@ -529,7 +529,7 @@ downloadButton.addEventListener('click', () => {
     let [_myPlayList, _myGains] = pickUp();
 
     load(_myPlayList)
-          .then(createdBuffers => {console.log(createdBuffers[0].sampleRate); return mixDown(createdBuffers, _myGains)})
+          .then(createdBuffers => mixDown(createdBuffers, _myGains))
           .then(mixedBuffer => toMp3(mixedBuffer))
           .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
           .catch(console.log('error in downloadUrl'));
