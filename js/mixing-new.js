@@ -54,9 +54,10 @@ function mixDown(loadedBufferList, givenGains) {
     let songLength = 0;
 
     for(let track of arrayOfAudioBuffers){
-        if(track.length > songLength){
-            songLength = track.length;
-        }
+      var l = track.length;
+      if(l > songLength){
+        songLength = l;
+      }
     };
 
     return songLength
