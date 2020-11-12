@@ -46,9 +46,9 @@
 <div id="sidenav">
     <button id="start">マイクオン</button>
     <button id="record" disabled hidden>録音</button>
-
+<!--
     </br>
-
+-->
     <div id="controler-0">
         <label id="inSel">レベル</label>
         <label id="latency">レイテンシ</label>
@@ -71,6 +71,21 @@
 
         <input type="file" accept="audio/*" id="upload"></input>
     </div>
+
+    <p id="hint">
+        再生レベルのヒント<br/>
+        基音源は
+        <input type="number" value='1' min="0" id="A">
+        人分で、今回録音するのは
+        <input type="number" value="1" min="1" id="B">
+        人分<br/>
+        ⇒
+        基音源は
+        <span id="C">50</span>
+        に、今回録るものは
+        <span id="D">50</span>
+        に設定しましょう
+    </p>
 </div>
 
 <div id="footer">

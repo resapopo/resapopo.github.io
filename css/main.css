@@ -8,37 +8,93 @@
  *  tree.
 */
 
+/*buttons*/
+
  button {
   margin: 0 3px 10px 0;
   padding-left: 2px;
   padding-right: 2px;
-  width: 99px;
+  width: 150px;
+  max-width: 30%;
+  height: 100px;
+}
+
+#start, #record {
+  width: 90%;
+  max-width: none;
 }
 
 button:last-of-type {
   margin: 0;
 }
 
-p.borderBelow {
-  margin: 0 0 20px 0;
-  padding: 0 0 20px 0;
-}
 
-/* Spin Buttons modified */
+/*responsive*/
+
+@media screen and (min-width: 40em) {
+
+  body {
+    display: grid;
+    grid-template-areas:
+       "header header"
+       "sidebar content"
+       "footer footer";
+    grid-template-columns: 1fr 5fr;
+    grid-gap: 20px;
+  }
+  
+  
+  /*slide bar*/
+  
+  [type="range"] {
+  
+          -webkit-transform:rotate(-90deg);
+             -moz-transform:rotate(-90deg);
+               -o-transform:rotate(-90deg);
+                  transform:rotate(-90deg);
+  }
+  
+  [type="range"] {
+    width: 90%;
+  }
+  
+  
+  button#start button#record {
+    grid-area: button;
+    display: inline-block;
+  }
+  
+  div#controler-0 {
+    grid-area: control;
+  }
+  
+  
+  #sidenav {
+    grid-template-areas: 
+    "button"
+    "control";
+  }
+  
+  
+  }
+
+
+/* Spinner */
 input[type="number"].mod::-webkit-outer-spin-button, 
 input[type="number"].mod::-webkit-inner-spin-button {
-  /*
+    /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
-    background: forestgreen; url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVQYlWNgwAT/sYhhKPiPT+F/LJgEsHv37v+EMGkmkuImoh2NoQAANlcun/q4OoYAAAAASUVORK5CYII=) no-repeat center center;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1em;
-    border-left: 1px solid #bbb;
-  */
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    background: #eee; /* url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;*/  
+    width: 14px;
+    height: 14px;
+    padding: 4px;
+    position: relative;
+    right: 4px;
+    border-radius: 28px;
     opacity: .5; /* shows Spin Buttons per default (Chrome >= 39) */
 }
+
 
 input[type=number] {
   width: 90%;
@@ -62,19 +118,6 @@ input#inSel[type=number] {
   max-width: none;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-    background: #eee; /* url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;*/  
-    width: 14px;
-    height: 14px;
-    padding: 4px;
-    position: relative;
-    right: 4px;
-    border-radius: 28px;
-}
 
 header {
   background-color: burlywood;
@@ -100,22 +143,6 @@ header {
   align-content: center;
 }
 
-
-[type="range"] {
-  width: 90%;
-}
-
-
-[type="range"] {
-
-        -webkit-transform:rotate(-90deg);
-           -moz-transform:rotate(-90deg);
-             -o-transform:rotate(-90deg);
-                transform:rotate(-90deg);
-}
-*/
-
-
 #sidenav {
   height: auto; 
   width:auto;  
@@ -125,17 +152,7 @@ header {
   overflow-x: hidden; 
   padding-top: 10px;
   grid-area: sidebar;
-}
 
-
-body {
-  display: grid;
-  grid-template-areas:
-     "header header"
-     "sidebar content"
-     "footer footer";
-  grid-template-columns: 1fr 5fr;
-  grid-gap: 20px;
 }
 
 #controler-0 {
@@ -170,3 +187,38 @@ input#delete {
   color: orangered;
   background-color: orangered;
 }
+
+body {
+  max-width: 1000px;
+}
+
+
+
+#hint {
+  font-size: 80%;
+}
+
+#C #D {
+  background-color: darkorchid;
+  color: darkorange;
+}
+
+
+/*
+p.borderBelow {
+  margin: 0 0 20px 0;
+  padding: 0 0 20px 0;
+}
+*/
+
+
+/*
+    -webkit-appearance: none;
+    background: forestgreen; url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVQYlWNgwAT/sYhhKPiPT+F/LJgEsHv37v+EMGkmkuImoh2NoQAANlcun/q4OoYAAAAASUVORK5CYII=) no-repeat center center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1em;
+    border-left: 1px solid #bbb;
+  */

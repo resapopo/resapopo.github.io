@@ -734,3 +734,19 @@ uploadButton.addEventListener('change', function(e) {
   var file = e.target.files[0]; 
   createNewPanel(URL.createObjectURL(file), file.name);
 });
+
+
+
+
+const ongenNinzu = document.querySelector('input#A');
+const konkaiNinzu = document.querySelector('input#B');
+const suggestOngenLevel = document.querySelector('span#C');
+const suggestKonkaiLevel = document.querySelector('span#D');
+
+ongenNinzu.addEventListener('change', hint);
+konkaiNinzu.addEventListener('change', hint);
+
+function hint() {
+  suggestOngenLevel.textContent = Math.round(eval(100*eval(ongenNinzu.value/eval(eval(ongenNinzu.value) + eval(konkaiNinzu.value)))));
+  suggestKonkaiLevel.textContent = Math.round(eval(100*eval(1/(eval(ongenNinzu.value)+eval(konkaiNinzu.value)))));
+};
