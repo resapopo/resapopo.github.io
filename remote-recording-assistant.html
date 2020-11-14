@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
  *  This code is based on
  *  https://rawgit.com/Miguelao/demos/master/mediarecorder.html
@@ -31,7 +31,29 @@
 
     <title>ハモレコ</title>
 
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main.css" id="cs">
+    <script>
+        function changeCss() {
+            document.getElementById("cs").href = "css/mobile.css";
+        }
+        function IsMobile() {
+            var ut = navigator.userAgent;
+            //document.getElementById("test").innerText = ut;
+            if (ut.indexOf('iPhone') > 0 || ut.indexOf('iPod') > 0 || ut.indexOf('Android') > 0 && ut.indexOf('Mobile') > 0) {
+                return true;
+            } else if (ut.indexOf('iPad') > 0 || ut.indexOf('Android') > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        function load() {
+            if (IsMobile()) {
+                changeCss();
+            }
+        }
+        window.onload = load;
+    </script>
 
 </head>
 
@@ -90,7 +112,7 @@
 
 <div id="footer">
 
-    <span>©</span>
+    <span id="test">©</span>
 
 </div>
 
