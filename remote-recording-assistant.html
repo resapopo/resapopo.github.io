@@ -50,7 +50,42 @@
         function load() {
             if (IsMobile()) {
                 changeCss();
+                oriChange();
+                window.addEventListener("orientationchange", () => {
+                    oriChange();
+                });
+
             }
+            
+        }
+        function oriChange() {
+            const angle = getAngle();
+            if (angle.value === undefined) {
+                return false;
+            }
+            if (angle.isPortrait) {
+                // 縦向き
+                document.getElementById("cs").href = "css/mobile.css";
+            }
+            else
+            {
+                // 横向き
+                document.getElementById("cs").href = "css/main.css";
+            }
+        }
+        function getAngle() {
+            // 角度を取得
+            let angle = screen && screen.orientation && screen.orientation.angle;
+            if (angle === undefined) {
+                angle = window.orientation;    // iOS用
+            }
+
+            const isPortrait = (angle === 0);
+            return ({
+                value: angle,           // 具体的な角度
+                isPortrait: isPortrait,      // 縦向き
+                isLandscape: !isPortrait,    // 横向き
+            });
         }
         window.onload = load;
     </script>
