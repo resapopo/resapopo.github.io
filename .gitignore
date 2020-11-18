@@ -1,0 +1,7 @@
+﻿################################################################################
+# この .gitignore ファイルは Microsoft(R) Visual Studio によって自動的に作成されました。
+################################################################################
+
+/.vs/ProjectSettings.json
+/.vs/resapopo.github.io3/config/applicationhost.config
+/.vs/slnx.sqlite
