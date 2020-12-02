@@ -17,6 +17,7 @@
   font-weight: normal;
   font-style: normal;
 }
+
 /*Copyright (c) 2011, Heydon Pickering (http://www.heydonworks.com | heydon@heydonworks.com),
 / with Reserved Font Name 'Heydings Controls'. This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
@@ -60,8 +61,7 @@
 }
 
 #start {
-  max-width: 100%;
-  /*height: auto;*/
+  height: auto;
   background: linear-gradient(116deg, white, grey);
   color: #ffffff;
 }

@@ -76,7 +76,7 @@ let myGains = [];
 
 // トラック番号
 let index;
-//let totalIndex = -1;
+let totalIndex = -1;
 
 let buffer;
 
@@ -218,24 +218,6 @@ function pickUp() {
   return [_myPlayList, _myGains];
 }
 
-/*
-function _pickUp() {
-  let _myPlayList = [];
-  let _myGains = [];
-
-  for (var i=0; i<recordedTracks.childElementCount; i++) {
-    var trk = recordedTracks.children[i];
-    if (trk.children[1].checked) {
-      //console.log(trk.querySelector('audio').src);
-      _myPlayList.push(trk.querySelector('audio').src);
-      var g = trk.children[2].value*0.01;
-      _myGains.push(g);
-    }
-  };
-  return [_myPlayList, _myGains];
-}
-*/
-
 function startRecording() {
   
   // 初期化
@@ -253,7 +235,7 @@ function startRecording() {
     console.log('Recorded Blobs: ', recordedBlobs);
     
     var superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
-    //console.log(superBuffer);
+    console.log(superBuffer);
     createNewPanel(window.URL.createObjectURL(superBuffer));
     recordButton.textContent = 'Rec';
     recordButton.setAttribute('data-icon','R');
@@ -297,9 +279,7 @@ function startRecordingIos() {
   // 初期化
   recordedBlobs = [];
 
-  recordButton.textContent = 'Stop';
-  recordButton.setAttribute('data-icon','S');
-  //recordButton.textContent = '停止';
+  recordButton.textContent = '停止';
   downloadButton.disabled = true;
 
   // for ios, edge
@@ -353,9 +333,7 @@ function handleDataAvailableIos(blob) {
 
     const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
     createNewPanel(window.URL.createObjectURL(superBuffer));
-    recordButton.textContent = 'Rec';
-    recordButton.setAttribute('data-icon','R');
-    //recordButton.textContent = '録音';
+    recordButton.textContent = '録音';
 };
 
 function closeWorker() {
@@ -426,8 +404,8 @@ function stopRecordingIos() {
 function createNewPanel(audioSrc, givenName = 'new') {
 
   let newTrack = document.createElement('audio');
-  //let newIdx = totalIndex + 1;
-  newTrack.setAttribute('id', 'recorded');
+  let newIdx = totalIndex + 1;
+  newTrack.setAttribute('id', `recorded-${newIdx}`);
   newTrack.src = null;
   newTrack.srcObject = null;
   newTrack.src = audioSrc;
@@ -436,16 +414,7 @@ function createNewPanel(audioSrc, givenName = 'new') {
   let checkBox = document.createElement('input');
   checkBox.setAttribute('type', 'checkbox');
   checkBox.setAttribute('checked', 'true');
-  checkBox.addEventListener('click', (e) => {
-    console.log(e.target);
-    e.target.parentNode.lastElementChild.hidden = e.target.checked ? true : false;
-  });
-
-  /*
-  let trackNumber = document.createElement('span');
-  trackNumber.setAttribute('id', 'trackNm');
-  trackNumber.innerText = newIdx;
-  */
+  checkBox.disabled = false;
 
   let selectedGain = document.createElement('input');
   selectedGain.setAttribute('type', 'number');
@@ -455,28 +424,13 @@ function createNewPanel(audioSrc, givenName = 'new') {
   selectedGain.setAttribute('min', '0');
   selectedGain.setAttribute('max', '100');
   
+  let trackName = document.createElement('span');
+  trackName.innerText = givenName;
+
   let checkBoxDelete = document.createElement('input');
   checkBoxDelete.setAttribute('type', 'checkbox');
   checkBoxDelete.setAttribute('id', 'delete');
   checkBoxDelete.hidden = true;
-
-  let trackName = document.createElement('input');
-  trackName.setAttribute('type', 'text');
-  trackName.value = givenName;
-
-  let deleteBtn = document.createElement('button');
-  deleteBtn.setAttribute('class', "iconButton");
-  deleteBtn.setAttribute('id', "delBtn");
-  deleteBtn.setAttribute('data-icon', "T");
-  deleteBtn.hidden = true;
-  deleteBtn.addEventListener('click', (e) => {
-    var parent = e.target.parentNode;
-    console.log(parent.querySelector('span').innerText);
-    //deleteTrack(parent.querySelector('span').innerText);
-    //console.log(parent);
-    //console.log(parent.parentNode.indexOf(parent));
-    //工事中
-  });
 
   // プレイリストに追加
   myPlayList.push(newTrack.src);
@@ -491,50 +445,20 @@ function createNewPanel(audioSrc, givenName = 'new') {
   newPanel.setAttribute('id', 'panel');
   newPanel.appendChild(newTrack);
   newPanel.appendChild(checkBox);
-  //newPanel.appendChild(trackNumber);
   newPanel.appendChild(selectedGain);
   newPanel.appendChild(trackName);
-  newPanel.appendChild(deleteBtn);
+  newPanel.appendChild(checkBoxDelete);
   
   recordedTracks.appendChild(newPanel);
   
   downloadButton.disabled = false;
-  playallButton.disabled = false;  
+  playallButton.disabled = false;
+  popButton.disabled = false;
+  
 }
 
 
-function deleteTrack(index) {
-
-  //if (recordedTracks.childNodes[index].childNodes[2] = 'new') {
-    var isYourDecision = confirm(`Make sure to delite the track-${index}. (トラック${index}を消してもいいですか)`);
-    if (isYourDecision) {
-      let deletedDiv = recordedTracks.childNodes[index];
-      let deletedTrack = deletedDiv.firstElementChild;
-      deletedDiv.removeChild(deletedTrack);
-      recordedTracks.removeChild(deletedDiv);
-      myPlayList.splice(index,1);
-    }
-}
-
-/*
-function deleteTrack(index) {
-
-  //if (recordedTracks.childNodes[index].childNodes[2] = 'new') {
-    var isYourDecision = confirm(`Make sure to delite the track-${index}. (トラック${index}を消してもいいですか)`);
-    if (isYourDecision) {
-      let deletedDiv = recordedTracks.childNodes[index-1];
-      let deletedTrack = deletedDiv.querySelector('audio');
-      deletedDiv.removeChild(deletedTrack);
-      recordedTracks.removeChild(deletedDiv);
-      myPlayList.splice(index,1);
-      for (var i=index; recordedTracks.length-1; i++) {
-        recordedTracks.children[i-1].querySelector('span').innerText--;
-      }
-    }
-}
-*/
-
-/* delete choosen track
+// delete choosen track
 const popButton = document.querySelector('button#pop');
 popButton.addEventListener('click', () => {
   if (popButton.textContent === '編集') {
@@ -557,7 +481,19 @@ popButton.addEventListener('click', () => {
     popButton.textContent = '編集';
   }      
 });
-*/
+
+function deleteTrack(index) {
+
+  //if (recordedTracks.childNodes[index].childNodes[2] = 'new') {
+    var isYourDecision = confirm(`Make sure to delite the track-${index}. (トラック${index}を消してもいいですか)`);
+    if (isYourDecision) {
+      let deletedDiv = recordedTracks.childNodes[index];
+      let deletedTrack = deletedDiv.firstElementChild;
+      deletedDiv.removeChild(deletedTrack);
+      recordedTracks.removeChild(deletedDiv);
+      myPlayList.splice(index,1);
+    }
+}
 
 /* for recoverly
 const popButton = document.querySelector('button#pop');
@@ -583,6 +519,7 @@ popButton.addEventListener('click', () => {
     
 })
 */
+
 
 
 // download mixed data as mp3
@@ -736,7 +673,7 @@ function readyRecording() {
       console.log('Recorded Blobs: ', recordedBlobs);
       
       var superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
-      //console.log(superBuffer);
+      console.log(superBuffer);
       createNewPanel(window.URL.createObjectURL(superBuffer));
       recordButton.textContent = 'Rec';
       recordButton.setAttribute('data-icon','R');
@@ -770,9 +707,7 @@ function readyRecordingIos() {
       // 初期化
     recordedBlobs = [];
 
-    recordButton.textContent = 'Stop';
-    recordButton.setAttribute('data-icon','S');
-    //recordButton.textContent = '停止';
+    recordButton.textContent = '停止';
     downloadButton.disabled = true;
   
     // for ios, edge
