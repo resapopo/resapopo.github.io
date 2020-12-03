@@ -244,7 +244,7 @@ function startRecording() {
   mediaRecorder = new MediaRecorder(myStream, options);
   
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  recordButton.textContent = 'Stop';
+  recordButton.innerHTML = 'Stop</br>';
   recordButton.setAttribute('data-icon','S');
   //playButton.disabled = true;
   downloadButton.disabled = true;
@@ -255,7 +255,7 @@ function startRecording() {
     var superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
     //console.log(superBuffer);
     createNewPanel(window.URL.createObjectURL(superBuffer));
-    recordButton.textContent = 'Rec';
+    recordButton.innerHTML = 'Rec</br>';
     recordButton.setAttribute('data-icon','R');
   };
   mediaRecorder.ondataavailable = handleDataAvailable;
@@ -297,7 +297,7 @@ function startRecordingIos() {
   // 初期化
   recordedBlobs = [];
 
-  recordButton.textContent = 'Stop';
+  recordButton.innerHTML = 'Stop</br>';
   recordButton.setAttribute('data-icon','S');
   //recordButton.textContent = '停止';
   downloadButton.disabled = true;
@@ -353,7 +353,7 @@ function handleDataAvailableIos(blob) {
 
     const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
     createNewPanel(window.URL.createObjectURL(superBuffer));
-    recordButton.textContent = 'Rec';
+    recordButton.innerHTML = 'Rec</br>';
     recordButton.setAttribute('data-icon','R');
     //recordButton.textContent = '録音';
 };
@@ -665,11 +665,11 @@ playallButton.addEventListener('click', () => {
   if (playallButton.dataset.icon === 'P') {
     let [_myPlayList, _myGains] = pickUp();
     playAll(_myPlayList, _myGains);
-    playallButton.textContent = 'Stop';
+    playallButton.innerHTML = 'Stop</br>';
     playallButton.setAttribute('data-icon','S');
   } else { // playallButton.data-icon === 'S'
     if (buffer) {buffer.stop(); 
-      playallButton.textContent = 'Play';
+      playallButton.innerHTML = 'Play</br>';
       playallButton.setAttribute('data-icon','P');};
   };
 
@@ -698,7 +698,7 @@ function playAll(playList, gains) {
       .then(mixedBuffer => ready(mixedBuffer))
       .then(readyedBuffer => 
         {buffer=readyedBuffer; 
-         readyedBuffer.addEventListener('ended', () => {playallButton.textContent = 'Play';
+         readyedBuffer.addEventListener('ended', () => {playallButton.innerHTML = 'Play</br>';
                                                          playallButton.setAttribute('data-icon','P');});
          readyedBuffer.start()})
       .catch(console.log('error in playAll'));
@@ -727,7 +727,7 @@ function readyRecording() {
     mediaRecorder = new MediaRecorder(myStream, options);
 
     console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-    recordButton.textContent = 'Stop';
+    recordButton.innerHTML = 'Stop</br>';
     recordButton.setAttribute('data-icon','S');
     //playButton.disabled = true;
     downloadButton.disabled = true;
@@ -738,7 +738,7 @@ function readyRecording() {
       var superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
       //console.log(superBuffer);
       createNewPanel(window.URL.createObjectURL(superBuffer));
-      recordButton.textContent = 'Rec';
+      recordButton.innerHTML = 'Rec</br>';
       recordButton.setAttribute('data-icon','R');
     };
     mediaRecorder.ondataavailable = handleDataAvailable;

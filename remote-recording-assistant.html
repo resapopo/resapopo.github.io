@@ -99,16 +99,15 @@
     <h1>ハモレコ</h1>
 </header>
 
-
 <div id="sidenav">
-    <button class="iconButton" id="start" data-icon="O"></button>
-    <button class="iconButton" id="record" data-icon="R" hidden disabled>Rec</button>
+    <button class="iconButton" id="start" data-icon="O">Switch On</br></button>
+    <button class="iconButton" id="record" data-icon="R" hidden disabled>Rec</br></button>
 <!--
     </br>
 -->
     <div id="controler-0">
-        <label id="inSel">録音音量</label>
-        <label id="latency">レイテンシー</label>
+        <label id="inSel">録音</br>音量</label>
+        <label id="latency">レイ</br>テンシー</label>
 
         <input type="number" id="inSel" value="5" min="1" max="10">
         <!-- value * 0.2 = micLevel -->
@@ -117,19 +116,29 @@
     </div>
 </div>
 
-<div id="controler-1">
-    <button class="iconButton" id="playall" data-icon="P" disabled>Play</button>
-    <button id="download" disabled>書き出し</button>
+<div id="mainmenu">
+    <div id="controler-1">
+        <button class="iconButton" id="playall" data-icon="P" disabled>Play</br></button>
+        <button id="download" disabled>書き出し</button>
+    </div>
 
     <!-- store recorded tracks -->
     <div id="display">
-        <div id="tracks"></div>
+        <div id="tracks">
+            <div id="rowNames">
+                <span>✔で再生</span>
+                <span>再生音量</span>
+                <span>トラック名</span>
+            </div>
+        </div>
 
-        <label id="myUploadBtn">
-            読み込み
-            <input type="file" accept="audio/*" id="upload">
-        </label>
-        <!--<input type="file" accept="audio/*" id="upload"></input>-->
+        <div id="controler-2">
+            <label id="myUploadBtn">
+                読み込み
+                <input type="file" accept="audio/*" id="upload">
+            </label>
+            <!--<input type="file" accept="audio/*" id="upload"></input>-->
+        </div>
     </div>
 
     <p id="hint">
