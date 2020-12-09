@@ -17,12 +17,13 @@
   font-weight: normal;
   font-style: normal;
 }
+
 /*Copyright (c) 2011, Heydon Pickering (http://www.heydonworks.com | heydon@heydonworks.com),
 / with Reserved Font Name 'Heydings Controls'. This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
 /*buttons*/
 
-button {
+ button {
   margin: 0;
   /*margin: 3px 3px 3px 3px;*/
   padding: 2px;
@@ -34,10 +35,6 @@ button {
   max-height: 100%;
   border: 1px;
   border-radius: .5em;
-}
-
-#controler-1 > button {
-  margin-right: 1em;
 }
 
 #record {
@@ -64,8 +61,7 @@ button {
 }
 
 #start {
-  max-width: 100%;
-  /*height: auto;*/
+  height: auto;
   background: linear-gradient(116deg, white, grey);
   color: #ffffff;
 }
@@ -73,8 +69,9 @@ button {
 #myUploadBtn {
   color: #ffffff;
   background: linear-gradient(116deg, #f08c00, #fbd54f);
+  display: inline-block;
   padding: 5px;
-  margin: 1em;
+  margin: auto;
   font-size: 1em;
   border-radius: .5em;
 }
@@ -101,10 +98,10 @@ input[type="number"].mod::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-    background: url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;
-    /*width: 14px;*/
-    /*height: auto;*/
-    /*max-height: 100%;*/
+    background: #eee; /* url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;*/
+    width: 14px;
+    height: 10px;
+    max-height: 100%;
     padding: 4px;
     position: relative;
     right: 4px;
@@ -112,7 +109,7 @@ input[type="number"].mod::-webkit-inner-spin-button {
     opacity: .5; /* shows Spin Buttons per default (Chrome >= 39) */
 }
 
-/*
+
 input[type=number] {
   width: 90%;
   height: 10px;
@@ -123,21 +120,20 @@ input[type=number] {
   -webkit-border-radius: 1px;
   border-radius: 1px;
   text-align: center;
-  /*border: 3px solid black;
+  /*border: 3px solid black;*/
   display: inline-block;
-  /*margin-left: 6%;
+  /*margin-left: 6%;*/
   background: #ffffff;
 }
-*/
 
 input#inSel[type=number] {
   width: 90%;
+  height: 10vw;
 }
 
 input#selGain[type=number] {
   height: auto;
 }
-*/
 
 input[type="checkbox"] {
   color: #f2930e;
@@ -154,7 +150,7 @@ header {
   background-color: none;
 }
 
-#mainmenu {
+#controler-1 {
   background-color: #ffffff;
 }
 
@@ -170,8 +166,7 @@ header {
 #footer {
   background-color: none;
   grid-area: footer;
-  display: flex;
-  justify-content: center;
+  align-content: center;
 }
 
 #credit {
@@ -197,15 +192,6 @@ header {
 }
 
 #controler-1 {
-  display: flex;
-}
-
-#controler-2, #rowName {
-  display: flex;
-  justify-content: center;
-}
-
-#mainmenu {
   /*margin-left: 160px; /* Same as the width of the sidebar */
   padding: 10px 10px;
   height: 70vh;
@@ -244,6 +230,11 @@ input#delete {
   background-color: orangered;
 }
 
+body {
+  max-width: 1000px;
+  background: #ececec;
+}
+
 h1 {
   color: white;
 }
@@ -259,9 +250,6 @@ h1 {
   color: darkorange;
 }
 
-#hint > [type="number"] {
-  width: 2rem;
-}
 
 /*
 p.borderBelow {
@@ -295,10 +283,6 @@ p.borderBelow {
        "footer footer";
     grid-template-columns: 1fr 5fr;
     grid-gap: 20px;
-    max-width: 1000px;
-    background: #ececec;
-    margin-left: auto;
-    margin-right: auto;
   }
   
   
@@ -314,16 +298,6 @@ p.borderBelow {
   
   [type="range"] {
     width: 90%;
-  }
-
-
-  #panel > [type="checkbox"],
-  #panel > [type="number"] {
-    width: 4rem
-  }
-
-  #panel > [type="text"] {
-    width: 6rem
   }
   
   

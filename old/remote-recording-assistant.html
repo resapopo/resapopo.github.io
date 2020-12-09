@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!--
  *  This code is based on
  *  https://rawgit.com/Miguelao/demos/master/mediarecorder.html
@@ -95,19 +95,20 @@
 <body>
 
 <header>
-    <img src="bellBox.jpg" alt="test logo">
     <h1>ハモレコ</h1>
+    <img src="bellBox.jpg" alt="test logo">
 </header>
 
+
 <div id="sidenav">
-    <button class="iconButton" id="start" data-icon="O">Switch On</br></button>
-    <button class="iconButton" id="record" data-icon="R" hidden disabled>Rec</br></button>
+    <button class="iconButton" id="start" data-icon="O"></button>  
+    <button class="iconButton" id="record" data-icon="R" hidden disabled>Rec</button>
 <!--
     </br>
 -->
     <div id="controler-0">
-        <label id="inSel">録音</br>音量</label>
-        <label id="latency">レイ</br>テンシー</label>
+        <label id="inSel">レベル</label>
+        <label id="latency">レイテンシ</label>
 
         <input type="number" id="inSel" value="5" min="1" max="10">
         <!-- value * 0.2 = micLevel -->
@@ -116,29 +117,16 @@
     </div>
 </div>
 
-<div id="mainmenu">
-    <div id="controler-1">
-        <button class="iconButton" id="playall" data-icon="P" disabled>Play</br></button>
-        <button id="download" disabled>書き出し</button>
-    </div>
+<div id="controler-1">
+    <button class="iconButton" id="playall" data-icon="P" disabled>Play</button>
+    <button id="pop" disabled>編集</button>
+    <button id="download" disabled>ダウンロード</button>
 
     <!-- store recorded tracks -->
     <div id="display">
-        <div id="tracks">
-            <div id="rowNames">
-                <span>✔で再生</span>
-                <span>再生音量</span>
-                <span>トラック名</span>
-            </div>
-        </div>
+        <div id="tracks"></div>
 
-        <div id="controler-2">
-            <label id="myUploadBtn">
-                読み込み
-                <input type="file" accept="audio/*" id="upload">
-            </label>
-            <!--<input type="file" accept="audio/*" id="upload"></input>-->
-        </div>
+        <input type="file" accept="audio/*" id="upload"></input>
     </div>
 
     <p id="hint">
@@ -159,14 +147,14 @@
 
 <div id="footer">
 
-    <span id="credit">Copyright © 2020 hamoreco</span>
+    <span id="test">©</span>
 
 </div>
 
 <!-- include adapter for srcObject shim -->
 <!--<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>-->
 <!-- mainのjsを読み込み -->
-<script src="js/main-audio.js" async></script>
+<script src="js/_main-audio.js" async></script>
 <!-- load mixing.js -->
 <script src="js/mixing-new.js" async></script>
 <!-- load lame.all.js -->
