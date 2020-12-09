@@ -207,9 +207,9 @@ function pickUp() {
   let _myGains = [];
 
   if (myPlayList.length > 0) {
-    for (var i=0; i<myPlayList.length; i++) {
+    for (var i=0; i<=myPlayList.length; i++) {
       if (recordedTracks.children[i].children[1].checked) {
-        _myPlayList.push(myPlayList[i]);
+        _myPlayList.push(myPlayList[i-1]);
         var g = recordedTracks.children[i].children[2].value*0.01;
         _myGains.push(g);
       }
