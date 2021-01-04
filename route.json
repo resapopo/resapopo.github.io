@@ -1,0 +1,9 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "serve": "/remote-recording-assistant.html",
+      "statusCode": 200
+    }
+  ]
+}
