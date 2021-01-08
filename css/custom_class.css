@@ -1,0 +1,88 @@
+/* Spiner */
+
+button:focus {
+  outline: none;
+}
+
+input:focus {
+  outline: none;
+}
+
+input {
+  border: none;
+  background: #ffffff;
+  width: 3em;
+  height: 3em;
+  text-align: center;
+  box-sizing: border-box;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#upBtn {
+  border: none;
+  width: 3em;
+  height: 2em;
+  border-radius: .5em .5em 0 0;
+  color: #ffffff;
+  background: #Ffc450;
+}
+
+#downBtn {
+  border: none;
+  width: 3em;
+  height: 2em;
+  border-radius: 0 0 .5em .5em;
+  color: #ffffff;
+  background: #Ffc450;
+}
+
+
+/* Check box */
+
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"]+label {
+  position: relative;
+  padding-top: 10px;
+  padding-left: 15px;
+}
+
+input[type="checkbox"]+label::before {
+  content: "";
+  background: #ffffff;
+  border-radius: 15%;
+  display: block;
+  width: 3em;
+  height: 3em;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  transform: translateY(-50%);
+  border: none;
+  /*cursor: pointer;*/
+}
+
+input[type=checkbox]:checked+label::after {
+  content: "";
+  display: block;
+  width: 1.6em;
+  height: 1em;
+  box-sizing: border-box;
+  border-bottom: 4px solid #f2930e;
+  border-left: 4px solid #f2930e;
+  position: absolute;
+  top: 65%;
+  left: 70%;
+
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  
+}

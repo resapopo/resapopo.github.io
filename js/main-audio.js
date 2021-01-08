@@ -246,7 +246,7 @@ function startRecording() {
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
   recordButton.innerHTML = 'Stop</br>';
   recordButton.setAttribute('data-icon','S');
-  //playButton.disabled = true;
+  playallButton.disabled = true;
   downloadButton.disabled = true;
   mediaRecorder.onstop = (event) => {
     console.log('Recorder stopped: ', event);
@@ -729,7 +729,7 @@ function readyRecording() {
     console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
     recordButton.innerHTML = 'Stop</br>';
     recordButton.setAttribute('data-icon','S');
-    //playButton.disabled = true;
+    playallButton.disabled = true;
     downloadButton.disabled = true;
     mediaRecorder.onstop = (event) => {
       console.log('Recorder stopped: ', event);
