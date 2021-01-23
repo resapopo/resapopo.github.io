@@ -11,6 +11,139 @@
 'use strict';
 
 
+
+class MyInputNumber extends HTMLElement {
+  constructor() {
+    super();
+
+    var shadow = this.attachShadow({mode: 'open'});
+
+    //var maxValue = this.getAttribute('max');
+    var initValue = this.getAttribute('value');
+    var id = this.getAttribute('id');
+
+    const micGain = document.createElement('input');
+    micGain.setAttribute('type', 'number');
+    micGain.setAttribute('id', id);
+    micGain.value = initValue;
+    micGain.readOnly = true;
+
+    const gainUpBtn = document.createElement('button');
+    gainUpBtn.setAttribute('class', 'spiner');
+    gainUpBtn.setAttribute('id', 'upBtn');
+    gainUpBtn.innerHTML = '▲';
+    gainUpBtn.addEventListener('click', {gain: micGain, max: this.getAttribute('max'), handleEvent: gainUp});
+    
+    const gainDownBtn = document.createElement('button');
+    gainDownBtn.setAttribute('class', 'spiner');
+    gainDownBtn.setAttribute('id', 'downBtn');
+    gainDownBtn.innerHTML = '▼';
+    gainDownBtn.addEventListener('click', {gain: micGain, handleEvent: gainDown});
+    
+    shadow.appendChild(gainUpBtn);
+    shadow.appendChild(micGain);
+    shadow.appendChild(gainDownBtn);
+
+    // Apply external styles to the shadow dom
+    const linkElem = document.createElement('link');
+    linkElem.setAttribute('rel', 'stylesheet');
+    linkElem.setAttribute('href', 'css/custom_class.css');
+
+    // Attach the created element to the shadow dom
+    shadow.appendChild(linkElem);
+  }
+
+  connectedCallback() {
+    updateState(this);
+  }
+  
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    updateState(this);
+  }
+}
+
+customElements.define('my-inputnumber', MyInputNumber);
+
+function updateState(elem) {
+  console.log('update');
+  const shadow = elem.shadowRoot;
+  var val = elem.getAttribute('value');
+  var id = elem.getAttribute('id');
+  var mx = elem.getAttribute('max');
+
+  var ip = shadow.querySelector('input');
+  ip.value = val;
+  ip.setAttribute('id', id);
+  shadow.querySelector('button#upBtn').addEventListener('click', {gain: ip, max: mx, handleEvent: gainUp});
+}
+
+/*
+<div class="customInputNumber">
+    <button class="spiner" id="upBtn">△</button>
+    <input type="number" id="micGain" value="5" readonly>
+    <button class="spiner" id="downBtn">▽</button>
+</div>
+*/
+
+function gainUp() {
+  var oldValue = Number(this.gain.value);
+  if (oldValue < this.max) {
+    var newValue = oldValue + 1;
+    // gain.value = ("0" + newValue).slice(-2);
+    this.gain.value = newValue;
+  }
+}
+
+
+function gainDown() {
+  var oldValue = Number(this.gain.value);
+  if (oldValue > 1) {
+    var newValue = oldValue - 1;
+    // gain.value = ("0" + newValue).slice(-2);
+    this.gain.value = newValue;
+  }
+}
+
+
+class MyCheckBox extends HTMLElement {
+  constructor() {
+    super();
+
+    var shadow = this.attachShadow({mode: 'open'});
+
+    var num = this.getAttribute('num');
+
+    const dammyCheckBox = document.createElement('input');
+    dammyCheckBox.setAttribute('type', 'checkbox');
+    dammyCheckBox.setAttribute('id', `checkbox-${num}`);
+
+    const customCheckBox = document.createElement('label');
+    customCheckBox.setAttribute('for', `checkbox-${num}`);
+
+    shadow.appendChild(dammyCheckBox);
+    shadow.appendChild(customCheckBox);
+
+    // Apply external styles to the shadow dom
+    const linkElem = document.createElement('link');
+    linkElem.setAttribute('rel', 'stylesheet');
+    linkElem.setAttribute('href', 'css/custom_class.css');
+
+    // Attach the created element to the shadow dom
+    shadow.appendChild(linkElem);
+  }
+    
+}
+
+customElements.define('my-checkbox', MyCheckBox);
+
+/*
+<div id="customInputCheckbox">
+      <input type="checkbox" id="check1">
+      <label for="check1"></label>
+</div>
+*/
+
+
 // define global variables
 
 let mediaRecorder;
@@ -69,7 +202,7 @@ let mySampleRate = 48000; // ad hoc!
 let recordedBlobs;
 
 // 再生が有効なaudioへのアクセスを格納
-let myPlayList = [];
+//let myPlayList = [];
 
 // selectedGainsを格納
 let myGains = [];
@@ -83,8 +216,42 @@ let buffer;
 
 // set up handlers
 const micOn = document.querySelector('button#start');
-const recordedTracks = document.querySelector('div#tracks')
-const inputLevelSelector = document.querySelector('input#inSel');
+const recordedTracks = document.querySelector('div#tracks');
+/*
+var micGainRoot;
+customElements.whenDefined('my-inputnumber').then(function () {
+    micGainRoot = document.querySelector('my-inputnumber').shadowRoot;
+    console.log(micGainRoot);
+    const inputLevelSelector = micGainRoot.querySelector('input');
+    // change mic level
+    inputLevelSelector.addEventListener('change', changeMicrophoneLevel);
+    function changeMicrophoneLevel(e) {
+      console.log('mic gain changed');
+      var value = e.target.value*0.2; 
+      if(value && value >= 0 && value <= 2) { 
+      micGainNode.gain.value = value; 
+      }
+    }
+  });
+  */
+
+const micGainMonitor = document.querySelector('my-inputnumber').shadowRoot.querySelector('input');
+const inputLevelSelector_0 = document.querySelector('my-inputnumber').shadowRoot.querySelector('button#upBtn');
+const inputLevelSelector_1 = document.querySelector('my-inputnumber').shadowRoot.querySelector('button#downBtn');
+// change mic level
+inputLevelSelector_0.addEventListener('click', {target: micGainMonitor, handleEvent: changeMicrophoneLevel});
+inputLevelSelector_1.addEventListener('click', {target: micGainMonitor, handleEvent: changeMicrophoneLevel});
+function changeMicrophoneLevel() {
+  console.log('mic gain changed');
+  var value = this.target.value*0.2; 
+  if(value && value >= 0 && value <= 2) { 
+  micGainNode.gain.value = value; 
+  }
+}
+
+// Great help
+// https://stackoverflow.com/questions/55704303/event-listener-outside-of-shadow-dom-wont-bind-to-elements-inside-of-shadow-dom
+
 const latencySelector = document.querySelector('input#latency');
 
 // mic
@@ -134,15 +301,6 @@ function handleError() {
   console.error('navigator.getUserMedia error:', e);
   errorMsgElement.innerHTML = `navigator.getUserMedia error:${e.toString()}`;
 };
-
-// change mic level
-inputLevelSelector.addEventListener('change', changeMicrophoneLevel);
-function changeMicrophoneLevel(e) {
-  var value = e.target.value*0.2; 
-  if(value && value >= 0 && value <= 2) { 
-   micGainNode.gain.value = value; 
-  } 
-}
 
 // latency level
 let latency = 100;
@@ -203,21 +361,39 @@ recordButton.addEventListener('click', () => {
 });
 
 function pickUp() {
+  let myPlayList = [];
+  let myGains = [];
+
+  //if (myPlayList.length > 0) {
+    for (var i=0; i<recordedTracks.childElementCount; i++) {
+      var panel = recordedTracks.children[i];
+      if (panel.querySelector('my-checkBox').shadowRoot.querySelector('input').checked) {
+        var src = panel.querySelector('audio').src;
+        myPlayList.push(src);
+        var g = panel.querySelector('my-inputnumber').shadowRoot.querySelector('input').value*0.01;
+        myGains.push(g);
+      }
+    }
+  //};
+  return [myPlayList, myGains];
+}
+/*
+function pickUp() {
   let _myPlayList = [];
   let _myGains = [];
 
   if (myPlayList.length > 0) {
     for (var i=0; i<myPlayList.length; i++) {
-      if (recordedTracks.children[i].children[1].checked) {
+      if (recordedTracks.children[i].querySelector('my-checkBox').shadowRoot.querySelector('input').checked) {
         _myPlayList.push(myPlayList[i]);
-        var g = recordedTracks.children[i].children[2].value*0.01;
+        var g = recordedTracks.children[i].querySelector('my-inputnumber').shadowRoot.querySelector('input').value*0.01;
         _myGains.push(g);
       }
     }
   };
   return [_myPlayList, _myGains];
 }
-
+*/
 /*
 function _pickUp() {
   let _myPlayList = [];
@@ -254,7 +430,10 @@ function startRecording() {
     
     var superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
     //console.log(superBuffer);
-    createNewPanel(window.URL.createObjectURL(superBuffer));
+    var objectUrl = window.URL.createObjectURL(superBuffer);
+    console.log(objectUrl);
+    createNewPanel(objectUrl);
+    //window.URL.revokeObjectURL(objectU);
     recordButton.innerHTML = 'Rec</br>';
     recordButton.setAttribute('data-icon','R');
   };
@@ -433,12 +612,18 @@ function createNewPanel(audioSrc, givenName = 'new') {
   newTrack.src = audioSrc;
   newTrack.controls = false;
 
-  let checkBox = document.createElement('input');
-  checkBox.setAttribute('type', 'checkbox');
-  checkBox.setAttribute('checked', 'true');
-  checkBox.addEventListener('click', (e) => {
+  let checkBox = new MyCheckBox;
+  checkBox.style.width = '4em';
+  let dammyCheckBox = checkBox.shadowRoot.querySelector('input');
+  dammyCheckBox.setAttribute('checked', 'true');
+ 
+  //let checkBox = document.createElement('input');
+  //checkBox.setAttribute('type', 'checkbox');
+  //checkBox.setAttribute('checked', 'true');
+  dammyCheckBox.addEventListener('click', (e) => {
     console.log(e.target);
-    e.target.parentNode.lastElementChild.hidden = e.target.checked ? true : false;
+
+    checkBox.parentNode.lastElementChild.disabled = e.target.checked ? true : false;
   });
 
   /*
@@ -447,13 +632,14 @@ function createNewPanel(audioSrc, givenName = 'new') {
   trackNumber.innerText = newIdx;
   */
 
-  let selectedGain = document.createElement('input');
-  selectedGain.setAttribute('type', 'number');
+  let selectedGain = document.createElement('my-inputnumber');
+  //let selectedGain = document.createElement('input');
+  //selectedGain.setAttribute('type', 'number');
   selectedGain.setAttribute('id', 'selGain');
-  selectedGain.setAttribute('value', '100');
-  selectedGain.setAttribute('step', '1');
-  selectedGain.setAttribute('min', '0');
-  selectedGain.setAttribute('max', '100');
+  selectedGain.setAttribute('value', 100);
+  //selectedGain.setAttribute('step', '1');
+  //selectedGain.setAttribute('min', '0');
+  selectedGain.setAttribute('max', 100);
   
   let checkBoxDelete = document.createElement('input');
   checkBoxDelete.setAttribute('type', 'checkbox');
@@ -468,18 +654,14 @@ function createNewPanel(audioSrc, givenName = 'new') {
   deleteBtn.setAttribute('class', "iconButton");
   deleteBtn.setAttribute('id', "delBtn");
   deleteBtn.setAttribute('data-icon', "T");
-  deleteBtn.hidden = true;
+  deleteBtn.disabled = true;
   deleteBtn.addEventListener('click', (e) => {
-    var parent = e.target.parentNode;
-    console.log(parent.querySelector('span').innerText);
-    //deleteTrack(parent.querySelector('span').innerText);
-    //console.log(parent);
-    //console.log(parent.parentNode.indexOf(parent));
-    //工事中
+    var _panel = e.target.parentNode;
+    deletePanel(_panel);
   });
 
   // プレイリストに追加
-  myPlayList.push(newTrack.src);
+  //myPlayList.push(newTrack.src);
   /*
   *  1. 再生位置指定
   *   a. 開始位置をフォームで指定できるようにする
@@ -503,86 +685,13 @@ function createNewPanel(audioSrc, givenName = 'new') {
 }
 
 
-function deleteTrack(index) {
-
-  //if (recordedTracks.childNodes[index].childNodes[2] = 'new') {
-    var isYourDecision = confirm(`Make sure to delite the track-${index}. (トラック${index}を消してもいいですか)`);
-    if (isYourDecision) {
-      let deletedDiv = recordedTracks.childNodes[index];
-      let deletedTrack = deletedDiv.firstElementChild;
-      deletedDiv.removeChild(deletedTrack);
-      recordedTracks.removeChild(deletedDiv);
-      myPlayList.splice(index,1);
-    }
+function deletePanel(panel) {
+  window.URL.revokeObjectURL(panel.querySelector('audio').src);
+  while (panel.firstChild) {
+    panel.removeChild(panel.firstChild);
+  };
+  panel.parentNode.removeChild(panel);
 }
-
-/*
-function deleteTrack(index) {
-
-  //if (recordedTracks.childNodes[index].childNodes[2] = 'new') {
-    var isYourDecision = confirm(`Make sure to delite the track-${index}. (トラック${index}を消してもいいですか)`);
-    if (isYourDecision) {
-      let deletedDiv = recordedTracks.childNodes[index-1];
-      let deletedTrack = deletedDiv.querySelector('audio');
-      deletedDiv.removeChild(deletedTrack);
-      recordedTracks.removeChild(deletedDiv);
-      myPlayList.splice(index,1);
-      for (var i=index; recordedTracks.length-1; i++) {
-        recordedTracks.children[i-1].querySelector('span').innerText--;
-      }
-    }
-}
-*/
-
-/* delete choosen track
-const popButton = document.querySelector('button#pop');
-popButton.addEventListener('click', () => {
-  if (popButton.textContent === '編集') {
-    for (var i=0; i<recordedTracks.childElementCount; i++) {
-      recordedTracks.childNodes[i].children[1].disabled = true;
-      recordedTracks.childNodes[i].lastElementChild.hidden = false;
-    };
-    popButton.textContent = '削除';
-  } else {
-    for (var i=recordedTracks.childElementCount-1; i>-1; i--) {
-      if (recordedTracks.childNodes[i].lastElementChild.checked === true) {
-        deleteTrack(i);
-      };
-    };
-
-    for (var i=0; i<recordedTracks.childElementCount; i++) {
-      recordedTracks.childNodes[i].children[1].disabled = false;
-      recordedTracks.childNodes[i].lastElementChild.hidden = true;
-    };
-    popButton.textContent = '編集';
-  }      
-});
-*/
-
-/* for recoverly
-const popButton = document.querySelector('button#pop');
-popButton.addEventListener('click', () => {
-  index = formInputDelete.value;
-  if (recordedTracks.childElementCount > 0 &&
-    index < recordedTracks.childElementCount+1 &&
-    index > 0) {
-
-    //if (recordedTracks.childNodes[index].childNodes[2] = 'new') {
-      var isYourDecision = confirm(`Make sure to delite the track-${index}. (トラック${index}を消してもいいですか)`);
-      if (isYourDecision) {
-        let deletedDiv = recordedTracks.childNodes[index-1];
-        let deletedTrack = deletedDiv.firstElementChild;
-        deletedDiv.removeChild(deletedTrack);
-        recordedTracks.removeChild(deletedDiv);
-        myPlayList.splice(index-1,1);
-        
-        formInputDelete.setAttribute('max', recordedTracks.childElementCount);
-
-      }
-  }
-    
-})
-*/
 
 
 // download mixed data as mp3
@@ -664,9 +773,11 @@ playallButton.addEventListener('click', () => {
 
   if (playallButton.dataset.icon === 'P') {
     let [_myPlayList, _myGains] = pickUp();
-    playAll(_myPlayList, _myGains);
-    playallButton.innerHTML = 'Stop</br>';
-    playallButton.setAttribute('data-icon','S');
+    if (!(_myPlayList.length===0)) {
+      playAll(_myPlayList, _myGains);
+      playallButton.innerHTML = 'Stop</br>';
+      playallButton.setAttribute('data-icon','S');
+    };
   } else { // playallButton.data-icon === 'S'
     if (buffer) {buffer.stop(); 
       playallButton.innerHTML = 'Play</br>';
@@ -842,3 +953,10 @@ function hint() {
   suggestOngenLevel.textContent = Math.round(eval(100*eval(ongenNinzu.value/eval(eval(ongenNinzu.value) + eval(konkaiNinzu.value)))));
   suggestKonkaiLevel.textContent = Math.round(eval(100*eval(1/(eval(ongenNinzu.value)+eval(konkaiNinzu.value)))));
 };
+
+
+function SendErrorMsg (methodName,errorMessage) {
+	var ut = navigator.userAgent;
+	var postData = {"methodName":methodName,"errorMessage":errorMessage,"userAgent":ut};
+	$.post("https://prod-12.japaneast.logic.azure.com:443/workflows/4a1b48dd6d9d45e7a4997c21abeacdc7/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=64EMXa3MMqVk3YAhWG5ghzsHe-Xna6YJvW0l99xbfOk", postData);
+} 

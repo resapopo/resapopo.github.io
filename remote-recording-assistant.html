@@ -8,15 +8,6 @@
  *  that can be found in the LICENSE file in the root of the source
  *  tree.
 -->
-<!--This app is based on MediaStream Recording
-    in the series of
-    <a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>. 
-    For more information see the MediaStream Recording API <a
-    href="http://w3c.github.io/mediacapture-record/MediaRecorder.html"
-        title="W3C MediaStream Recording API Editor's Draft">Editor's&nbsp;Draft</a>.
-    </p>
-    <p><a href="audio-record.html">Draft version</a></p>
--->
 <html>
 <head>
 
@@ -95,7 +86,7 @@
 <body>
 
 <header>
-    <img src="bellBox.jpg" alt="test logo">
+    <img src="test-logo.png" alt="test logo">
     <h1>ハモレコ</h1>
 </header>
 
@@ -109,7 +100,8 @@
         <label for="inSel">録音</br>音量</label>
         <label for="latency">レイ</br>テンシー</label>
 
-        <input type="number" id="inSel" value="5" min="1" max="10">
+        <my-inputnumber id='inSelTest' max=10 value=5></my-inputnumber>
+        <!--<input type="number" id="inSel" value="5" min="1" max="10">-->
         <!-- value * 0.2 = micLevel -->
 
         <input type="range" id="latency" min="100" max="250" value="150" step="1">
@@ -125,9 +117,10 @@
     <!-- store recorded tracks -->
     <div id="display">
         <div id="rowNames">
+            <span style="display: none;"></span>
             <span>✔で再生</span>
             <span>再生音量</span>
-            <span>トラック名</span>
+            <span>ファイル</span>
         </div>
         <div id="tracks">
             
@@ -156,11 +149,12 @@
         <span id="D">50</span>
         に設定しましょう
     </p>
+
 </div>
 
 <div id="footer">
 
-    <span id="credit">Copyright © 2020 hamoreco</span>
+    <span id="credit">Copyright © 2021 hamoreco</span>
 
 </div>
 
@@ -172,6 +166,10 @@
 <script src="js/mixing-new.js" async></script>
 <!-- load lame.all.js -->
 <script src='js/lame.all.js'></script>
-
+<!-- load JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--
+<script src='js/test.js'></script>
+-->
 </body>
 </html>

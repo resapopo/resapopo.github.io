@@ -341,9 +341,14 @@ header {
   grid-area: content;
 }
 
+#tracks {
+  display: inline-grid;
+}
+
 #panel {
-  display: flex;
-  height: 40px;
+  display: inline-flex;
+  justify-content: center;
+  height: 4em;
   margin-bottom: -2px;
   background-color: #ececec;
   border: solid 2px;
@@ -363,8 +368,8 @@ header {
 
 header img {
   display: block;
-  height: 40px;
-  padding-top: 20.15px;
+  width: 5em;
+  height: 5em;
   margin: 5px;
 }
 
@@ -425,7 +430,7 @@ h1 {
     width: 90%;
   }
 
-
+/*
   #panel > [type="checkbox"],
   #panel > [type="number"] {
     width: 4rem
@@ -434,7 +439,7 @@ h1 {
   #panel > [type="text"] {
     width: 6rem
   }
-  
+*/
   
   button#start button#record {
     grid-area: button;
