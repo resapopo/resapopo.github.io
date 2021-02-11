@@ -225,40 +225,39 @@ button:last-of-type {
 */
 
 
-/* Spinner */
-input[type="number"].mod::-webkit-outer-spin-button,
-input[type="number"].mod::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-    background: url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;
-    /*width: 14px;*/
-    /*height: auto;*/
-    /*max-height: 100%;*/
-    padding: 4px;
-    position: relative;
-    right: 4px;
-    border-radius: 28px;
-    opacity: .5; /* shows Spin Buttons per default (Chrome >= 39) */
+my-inputnumber {
+  display: inline-flex;
+  flex-direction: column;
+  /*align-items: start; /* ADD */
 }
 
-/*
-input[type=number] {
-  width: 90%;
-  height: 10px;
-  max-width: 40px;
-  max-height: 60px;
-  text-align: center;
-  -moz-border-radius: 1px;
-  -webkit-border-radius: 1px;
-  border-radius: 1px;
-  text-align: center;
-  /*border: 3px solid black;
-  display: inline-block;
-  /*margin-left: 6%;
+my-inputnumber > input {
+  border: none;
+  -webkit-appearance: none;
   background: #ffffff;
+  width: 3em;
+  height: 3em;
+  text-align: center;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
-*/
+
+#upBtn {
+  width: 3em;
+  height: 2em;
+  border-radius: .5em .5em 0 0;
+  color: #ffffff;
+  background: #Ffc450;
+}
+
+#downBtn {
+  width: 3em;
+  height: 2em;
+  border-radius: 0 0 .5em .5em;
+  color: #ffffff;
+  background: #Ffc450;
+}
 
 input#inSel[type=number] {
   width: 90%;
@@ -342,9 +341,14 @@ header {
   grid-area: content;
 }
 
+#tracks {
+  display: inline-grid;
+}
+
 #panel {
-  display: flex;
-  height: 40px;
+  display: inline-flex;
+  justify-content: center;
+  height: 4em;
   margin-bottom: -2px;
   background-color: #ececec;
   border: solid 2px;
@@ -364,8 +368,8 @@ header {
 
 header img {
   display: block;
-  height: 40px;
-  padding-top: 20.15px;
+  width: 5em;
+  height: 5em;
   margin: 5px;
 }
 
@@ -393,27 +397,8 @@ h1 {
   width: 2rem;
 }
 
-/*
-p.borderBelow {
-  margin: 0 0 20px 0;
-  padding: 0 0 20px 0;
-}
-*/
 
-
-/*
-    -webkit-appearance: none;
-    background: forestgreen; url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVQYlWNgwAT/sYhhKPiPT+F/LJgEsHv37v+EMGkmkuImoh2NoQAANlcun/q4OoYAAAAASUVORK5CYII=) no-repeat center center;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1em;
-    border-left: 1px solid #bbb;
-  */
-
-
-  /*responsive*/
+/*responsive*/
 
 /*@media screen and (min-width: 40em) {*/
 
@@ -445,7 +430,7 @@ p.borderBelow {
     width: 90%;
   }
 
-
+/*
   #panel > [type="checkbox"],
   #panel > [type="number"] {
     width: 4rem
@@ -454,7 +439,7 @@ p.borderBelow {
   #panel > [type="text"] {
     width: 6rem
   }
-  
+*/
   
   button#start button#record {
     grid-area: button;
