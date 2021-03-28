@@ -32,13 +32,13 @@ class MyInputNumber extends HTMLElement {
     gainUpBtn.setAttribute('class', 'spiner');
     gainUpBtn.setAttribute('id', 'upBtn');
     gainUpBtn.innerHTML = '▲';
-    gainUpBtn.addEventListener('click', {gain: micGain, max: this.getAttribute('max'), handleEvent: gainUp});
+    gainUpBtn.addEventListener('click', {gain: micGain, max: this.getAttribute('max'), step: this.getAttribute('step'), handleEvent: gainUp});
     
     const gainDownBtn = document.createElement('button');
     gainDownBtn.setAttribute('class', 'spiner');
     gainDownBtn.setAttribute('id', 'downBtn');
     gainDownBtn.innerHTML = '▼';
-    gainDownBtn.addEventListener('click', {gain: micGain, handleEvent: gainDown});
+    gainDownBtn.addEventListener('click', {gain: micGain, min: this.getAttribute('min'), step:this.getAttribute('step'), handleEvent: gainDown});
     
     shadow.appendChild(gainUpBtn);
     shadow.appendChild(micGain);
@@ -70,11 +70,14 @@ function updateState(elem) {
   var val = elem.getAttribute('value');
   var id = elem.getAttribute('id');
   var mx = elem.getAttribute('max');
+  var mn = elem.getAttribute('min');
+  var step = elem.getAttribute('step');
 
   var ip = shadow.querySelector('input');
   ip.value = val;
   ip.setAttribute('id', id);
-  shadow.querySelector('button#upBtn').addEventListener('click', {gain: ip, max: mx, handleEvent: gainUp});
+  shadow.querySelector('button#upBtn').addEventListener('click', {gain: ip, max: mx, step: step, handleEvent: gainUp});
+  shadow.querySelector('button#downBtn').addEventListener('click', {gain: ip, min: mn, step: step, handleEvent: gainDown});
 }
 
 /*
@@ -88,7 +91,7 @@ function updateState(elem) {
 function gainUp() {
   var oldValue = Number(this.gain.value);
   if (oldValue < this.max) {
-    var newValue = oldValue + 1;
+    var newValue = oldValue + 1*this.step;
     // gain.value = ("0" + newValue).slice(-2);
     this.gain.value = newValue;
   }
@@ -97,8 +100,8 @@ function gainUp() {
 
 function gainDown() {
   var oldValue = Number(this.gain.value);
-  if (oldValue > 1) {
-    var newValue = oldValue - 1;
+  if (oldValue > this.min) {
+    var newValue = oldValue - 1*this.step;
     // gain.value = ("0" + newValue).slice(-2);
     this.gain.value = newValue;
   }
@@ -322,11 +325,11 @@ const recordButton = document.querySelector('button#record');
 recordButton.addEventListener('click', () => {
   if (recordButton.dataset.icon === 'R') {
     
-    let [_myPlayList, _myGains] = pickUp();
+    let [_myPlayList, _myGains, _mySchedules] = pickUp();
     
     if (_myPlayList.length > 0) {
       if (usingMediaRecorder) {
-        overDub(_myPlayList, _myGains);
+        overDub(_myPlayList, _myGains, _mySchedules);
       } else {
         overDubIos(_myPlayList, _myGains);
       };
@@ -363,6 +366,7 @@ recordButton.addEventListener('click', () => {
 function pickUp() {
   let myPlayList = [];
   let myGains = [];
+  let mySchedules = [];
 
   //if (myPlayList.length > 0) {
     for (var i=0; i<recordedTracks.childElementCount; i++) {
@@ -370,47 +374,19 @@ function pickUp() {
       if (panel.querySelector('my-checkBox').shadowRoot.querySelector('input').checked) {
         var src = panel.querySelector('audio').src;
         myPlayList.push(src);
-        var g = panel.querySelector('my-inputnumber').shadowRoot.querySelector('input').value*0.01;
+        var g = panel.querySelector('my-inputnumber#selGain').shadowRoot.querySelector('input').value*0.01;
         myGains.push(g);
+        var s = panel.querySelector('my-inputnumber#schedule').shadowRoot.querySelector('input').value*0.001;
+        mySchedules.push(s);
+        
       }
     }
   //};
-  return [myPlayList, myGains];
+  console.log(myGains);
+  console.log(mySchedules);
+  return [myPlayList, myGains, mySchedules];
 }
-/*
-function pickUp() {
-  let _myPlayList = [];
-  let _myGains = [];
 
-  if (myPlayList.length > 0) {
-    for (var i=0; i<myPlayList.length; i++) {
-      if (recordedTracks.children[i].querySelector('my-checkBox').shadowRoot.querySelector('input').checked) {
-        _myPlayList.push(myPlayList[i]);
-        var g = recordedTracks.children[i].querySelector('my-inputnumber').shadowRoot.querySelector('input').value*0.01;
-        _myGains.push(g);
-      }
-    }
-  };
-  return [_myPlayList, _myGains];
-}
-*/
-/*
-function _pickUp() {
-  let _myPlayList = [];
-  let _myGains = [];
-
-  for (var i=0; i<recordedTracks.childElementCount; i++) {
-    var trk = recordedTracks.children[i];
-    if (trk.children[1].checked) {
-      //console.log(trk.querySelector('audio').src);
-      _myPlayList.push(trk.querySelector('audio').src);
-      var g = trk.children[2].value*0.01;
-      _myGains.push(g);
-    }
-  };
-  return [_myPlayList, _myGains];
-}
-*/
 
 function startRecording() {
   
@@ -448,8 +424,8 @@ function stopRecording() {
   mediaRecorder.stop();
 }
 
-function overDub(playList, gains) {
-  let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer, gains))
+function overDub(playList, gains, schedules=0) {
+  let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer, gains, schedules))
                                   .then(mixedBuffer => ready(mixedBuffer))
                                   .catch(console.log('error in overDub'));
   let readyMediaRecorder = readyRecording();
@@ -637,14 +613,25 @@ function createNewPanel(audioSrc, givenName = 'new') {
   //selectedGain.setAttribute('type', 'number');
   selectedGain.setAttribute('id', 'selGain');
   selectedGain.setAttribute('value', 100);
-  //selectedGain.setAttribute('step', '1');
-  //selectedGain.setAttribute('min', '0');
+  selectedGain.setAttribute('step', '1');
+  selectedGain.setAttribute('min', '1');
   selectedGain.setAttribute('max', 100);
+
+
+  let selectedSchedule = document.createElement('my-inputnumber');
+  //let selectedGain = document.createElement('input');
+  //selectedGain.setAttribute('type', 'number');
+  selectedSchedule.setAttribute('id', 'schedule');
+  selectedSchedule.setAttribute('value', 0);
+  selectedSchedule.setAttribute('step', '10');
+  selectedSchedule.setAttribute('min', 0);
+  selectedSchedule.setAttribute('max', 2000);
+
   
-  let checkBoxDelete = document.createElement('input');
-  checkBoxDelete.setAttribute('type', 'checkbox');
-  checkBoxDelete.setAttribute('id', 'delete');
-  checkBoxDelete.hidden = true;
+  //let checkBoxDelete = document.createElement('input');
+  //checkBoxDelete.setAttribute('type', 'checkbox');
+  //checkBoxDelete.setAttribute('id', 'delete');
+  //checkBoxDelete.hidden = true;
 
   let trackName = document.createElement('input');
   trackName.setAttribute('type', 'text');
@@ -660,8 +647,6 @@ function createNewPanel(audioSrc, givenName = 'new') {
     deletePanel(_panel);
   });
 
-  // プレイリストに追加
-  //myPlayList.push(newTrack.src);
   /*
   *  1. 再生位置指定
   *   a. 開始位置をフォームで指定できるようにする
@@ -675,6 +660,7 @@ function createNewPanel(audioSrc, givenName = 'new') {
   newPanel.appendChild(checkBox);
   //newPanel.appendChild(trackNumber);
   newPanel.appendChild(selectedGain);
+  newPanel.appendChild(selectedSchedule);
   newPanel.appendChild(trackName);
   newPanel.appendChild(deleteBtn);
   
@@ -772,9 +758,9 @@ const playallButton = document.querySelector('button#playall');
 playallButton.addEventListener('click', () => {
 
   if (playallButton.dataset.icon === 'P') {
-    let [_myPlayList, _myGains] = pickUp();
+    let [_myPlayList, _myGains, _mySchedules] = pickUp();
     if (!(_myPlayList.length===0)) {
-      playAll(_myPlayList, _myGains);
+      playAll(_myPlayList, _myGains, _mySchedules);
       playallButton.innerHTML = 'Stop</br>';
       playallButton.setAttribute('data-icon','S');
     };
@@ -786,26 +772,11 @@ playallButton.addEventListener('click', () => {
 
 });
 
-/*
-function playAll(playList, gains) {
-  if (playList.length > 0) {
-    load(playList)
-      .then(createdBuffer => mixDown(createdBuffer, gains))
-      .then(mixedBuffer => ready(mixedBuffer))
-      .then(readyedBuffer => 
-        {buffer=readyedBuffer; 
-          readyedBuffer.addEventListener('ended', () => {playallButton.textContent = 'Play';
-                                                         playallButton.setAttribute('data-icon','P');});
-                                                         readyedBuffer.start();})
-      .catch(console.log('error in playAll'));
-  }
-};
-*/
 
-function playAll(playList, gains) {
+function playAll(playList, gains, schedules=0) {
   if (playList.length > 0) {
     load(playList)
-      .then(createdBuffer => mixDown(createdBuffer, gains))
+      .then(createdBuffer => mixDown(createdBuffer, gains, schedules))
       .then(mixedBuffer => ready(mixedBuffer))
       .then(readyedBuffer => 
         {buffer=readyedBuffer; 

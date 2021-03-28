@@ -173,6 +173,7 @@ input:focus {
   background: linear-gradient(116deg, #3632331e, #f8f5f5);
 }
 
+/* https://www.fontsquirrel.com/fonts/list/find_fonts?q%5Bterm%5D=icon&q%5Bsearch_check%5D=Y */
 .iconButton::after {
   font-family: HeydingsControlsRegular;
   font-size: 2em;
@@ -229,6 +230,10 @@ my-inputnumber {
   display: inline-flex;
   flex-direction: column;
   /*align-items: start; /* ADD */
+}
+
+#panel > my-inputnumber {
+  margin: 0em 1em;
 }
 
 my-inputnumber > input {
