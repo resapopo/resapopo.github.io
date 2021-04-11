@@ -736,7 +736,7 @@ downloadButton.addEventListener('click', () => {
             .then(createdBuffers => mixDown(createdBuffers, _myGains, _mySchedules))
             .then(mixedBuffer => toMp3(mixedBuffer))
             .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
-            //.catch(console.log('error in downloadUrl'));
+            .catch(e => {SendErrorMsg('promise chain after load', e); console.log('error in downloadUrl')});
     }
   } catch {
     SendErrorMsg('downloadButton', '');
