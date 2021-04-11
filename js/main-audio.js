@@ -837,22 +837,26 @@ function playAll(playList, gains, schedules=0) {
          readyedBuffer.addEventListener('ended', () => {playallButton.innerHTML = 'Play</br>';
                                                          playallButton.setAttribute('data-icon','P');});
          readyedBuffer.start()})
-      .catch(console.log('error in playAll'));
+      .catch(e => {SendErrorMsg('promise chain after playAll', e) ;console.log('error in playAll')});
   }
 };
 
 // ready bufferSourceNode
 function ready(audioBuffer) {
-  // 
-  // creat AudioBufferSourceNode instance
-  const mix = context.createBufferSource();
-  
-  mix.buffer = audioBuffer;
+  try {
+    // 
+    // creat AudioBufferSourceNode instance
+    const mix = context.createBufferSource();
+    
+    mix.buffer = audioBuffer;
 
-  mix.connect(context.destination);
+    mix.connect(context.destination);
 
-  console.log(mix);
-  return mix;
+    console.log(mix);
+    return mix;
+  } catch {e =>
+    SendErrorMsg('ready', e)
+  }
 }
 
 function readyRecording() {
