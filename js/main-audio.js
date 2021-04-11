@@ -718,6 +718,7 @@ function deletePanel(panel) {
 const downloadButton = document.querySelector('button#download');
 downloadButton.addEventListener('click', () => {
   try {
+    SendErrorMsg('dounloadButton', 'something bad');
     //  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
     if (recordedTracks.childElementCount < 1) {
       alert('There is no data can be downloaded!');
