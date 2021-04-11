@@ -364,39 +364,44 @@ recordButton.addEventListener('click', () => {
 });
 
 function pickUp() {
-  let myPlayList = [];
-  let myGains = [];
-  let mySchedules = [];
+  try {
+    SendErrorMsg('pickUp', 'called');
+    let myPlayList = [];
+    let myGains = [];
+    let mySchedules = [];
 
-  //if (myPlayList.length > 0) {
-    for (var i=0; i<recordedTracks.childElementCount; i++) {
-      var panel = recordedTracks.children[i];
-      if (panel.querySelector('my-checkBox').shadowRoot.querySelector('input').checked) {
-        var src = panel.querySelector('audio').src;
-        myPlayList.push(src);
-        var g = panel.querySelector('my-inputnumber#selGain').shadowRoot.querySelector('input').value*0.01;
-        myGains.push(g);
-        var s = panel.querySelector('my-inputnumber#schedule').shadowRoot.querySelector('input').value*0.001;
-        mySchedules.push(s);
+    //if (myPlayList.length > 0) {
+      for (var i=0; i<recordedTracks.childElementCount; i++) {
+        var panel = recordedTracks.children[i];
+        if (panel.querySelector('my-checkBox').shadowRoot.querySelector('input').checked) {
+          var src = panel.querySelector('audio').src;
+          myPlayList.push(src);
+          var g = panel.querySelector('my-inputnumber#selGain').shadowRoot.querySelector('input').value*0.01;
+          myGains.push(g);
+          var s = panel.querySelector('my-inputnumber#schedule').shadowRoot.querySelector('input').value*0.001;
+          mySchedules.push(s);
+        }
       }
-    }
-  //};
-  console.log(myGains);
-  console.log(mySchedules);
+    //};
+    console.log(myGains);
+    console.log(mySchedules);
 
-  /*
-    var min_sch = 0;
-    for (var i=0; i<mySchedules.childElementCount; i++) {
-      if (mySchedules[i]<min_sch) {
-        min_sch = mySchedules[i];
+    /*
+      var min_sch = 0;
+      for (var i=0; i<mySchedules.childElementCount; i++) {
+        if (mySchedules[i]<min_sch) {
+          min_sch = mySchedules[i];
+        };
       };
-    };
 
-    mySchedules -= min_sch;
-  */
-  
+      mySchedules -= min_sch;
+    */
+    
 
-  return [myPlayList, myGains, mySchedules];
+    return [myPlayList, myGains, mySchedules];
+  } catch {
+    SendErrorMsg('pickUp', '')
+  }
 }
 
 
@@ -718,9 +723,10 @@ function deletePanel(panel) {
 const downloadButton = document.querySelector('button#download');
 downloadButton.addEventListener('click', () => {
   try {
-    SendErrorMsg('dounloadButton', 'something bad');
+    //SendErrorMsg('dounloadButton', 'something bad');
     //  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
     if (recordedTracks.childElementCount < 1) {
+      SendErrorMsg('downloadButton', 'There is no data');
       alert('There is no data can be downloaded!');
       downloadButton.disabled = true;
     } else {
@@ -730,10 +736,11 @@ downloadButton.addEventListener('click', () => {
             .then(createdBuffers => mixDown(createdBuffers, _myGains, _mySchedules))
             .then(mixedBuffer => toMp3(mixedBuffer))
             .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
-            .catch(console.log('error in downloadUrl'));
+            //.catch(console.log('error in downloadUrl'));
     }
   } catch {
-    SendErrorMsg('downloadButton', '')
+    SendErrorMsg('downloadButton', '');
+    console.log('error in downloadUrl')
   }
 });
 
