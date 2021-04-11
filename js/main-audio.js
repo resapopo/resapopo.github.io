@@ -365,7 +365,7 @@ recordButton.addEventListener('click', () => {
 
 function pickUp() {
   try {
-    SendErrorMsg('pickUp', 'called');
+    //SendErrorMsg('pickUp', 'called');
     let myPlayList = [];
     let myGains = [];
     let mySchedules = [];
