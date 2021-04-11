@@ -378,12 +378,24 @@ function pickUp() {
         myGains.push(g);
         var s = panel.querySelector('my-inputnumber#schedule').shadowRoot.querySelector('input').value*0.001;
         mySchedules.push(s);
-        
       }
     }
   //};
   console.log(myGains);
   console.log(mySchedules);
+
+  /*
+    var min_sch = 0;
+    for (var i=0; i<mySchedules.childElementCount; i++) {
+      if (mySchedules[i]<min_sch) {
+        min_sch = mySchedules[i];
+      };
+    };
+
+    mySchedules -= min_sch;
+  */
+  
+
   return [myPlayList, myGains, mySchedules];
 }
 
@@ -449,119 +461,129 @@ function handleDataAvailable(event) {
 };
 
 function startRecordingIos() {
-  // 初期化
-  recordedBlobs = [];
+  try {
+    // 初期化
+    recordedBlobs = [];
 
-  recordButton.innerHTML = 'Stop</br>';
-  recordButton.setAttribute('data-icon','S');
-  //recordButton.textContent = '停止';
-  downloadButton.disabled = true;
+    recordButton.innerHTML = 'Stop</br>';
+    recordButton.setAttribute('data-icon','S');
+    //recordButton.textContent = '停止';
+    downloadButton.disabled = true;
 
-  // for ios, edge
-  //
-  encoderWorker = new Worker('js/encoder-wav-worker.js')
-  encoderMimeType = 'audio/wav'
-  // 不要？
-  console.log('Created EncoderWorker', encoderWorker, 'with MimeType', encoderMimeType);
+    // for ios, edge
+    //
+    encoderWorker = new Worker('js/encoder-wav-worker.js')
+    encoderMimeType = 'audio/wav'
+    // 不要？
+    console.log('Created EncoderWorker', encoderWorker, 'with MimeType', encoderMimeType);
 
 
-  // 'dataavailable'イベントにdataとしてblobを載せる
-  encoderWorker.addEventListener('message', (e) => {
-    //let event = new Event('dataavailable');
-    let blb = new Blob(e.data, { type: encoderMimeType });
-    console.log('posted data', e.data);
-    handleDataAvailableIos(blb);
-    closeWorker();
-  });
+    // 'dataavailable'イベントにdataとしてblobを載せる
+    encoderWorker.addEventListener('message', (e) => {
+      //let event = new Event('dataavailable');
+      let blb = new Blob(e.data, { type: encoderMimeType });
+      console.log('posted data', e.data);
+      handleDataAvailableIos(blb);
+      closeWorker();
+    });
 
-  inputStreamNode = audioCtx.createMediaStreamSource(myStream);
+    inputStreamNode = audioCtx.createMediaStreamSource(myStream);
 
-  processorNode = audioCtx.createScriptProcessor(config.processorBufferSize, 1, 1);
+    processorNode = audioCtx.createScriptProcessor(config.processorBufferSize, 1, 1);
 
-  // we dont use destinationNode, but, it seems to be needed for activation of ScriptProcessor
-  // https://github.com/WebAudio/web-audio-api/issues/345
-  destinationNode = audioCtx.createMediaStreamDestination();
-  // TODO: Get the number of channels from mic
+    // we dont use destinationNode, but, it seems to be needed for activation of ScriptProcessor
+    // https://github.com/WebAudio/web-audio-api/issues/345
+    destinationNode = audioCtx.createMediaStreamDestination();
+    // TODO: Get the number of channels from mic
 
-  processorNode.onaudioprocess = (e) =>
-  {
-    // console.log('buffer to be encoded', e.inputBuffer.getChannelData(0));
-    encoderWorker.postMessage(['encode', e.inputBuffer.getChannelData(0)]);
-  };
+    processorNode.onaudioprocess = (e) =>
+    {
+      // console.log('buffer to be encoded', e.inputBuffer.getChannelData(0));
+      encoderWorker.postMessage(['encode', e.inputBuffer.getChannelData(0)]);
+    };
 
-  launchRecordingIos();
-  //inputStreamNode.connect(processorNode);
-  //processorNode.connect(destinationNode);
-  
+    launchRecordingIos();
+    //inputStreamNode.connect(processorNode);
+    //processorNode.connect(destinationNode);
+  } catch {
+    SendErrorMsg('startRecordingIos', '')
+  }  
 };
 
 function handleDataAvailableIos(blob) {
-  if (blob && blob.size > 0) {
-    recordedBlobs.push(blob);
-    console.log('blob: ', blob);
-    // blob
-    console.log('blob.size: ', blob.size);
-    // blob.size
-  };
-    console.log('Recorder stopped: ', blob);
-    console.log('Recorded Blobs: ', recordedBlobs);
-
-    const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
-    createNewPanel(window.URL.createObjectURL(superBuffer));
-    recordButton.innerHTML = 'Rec</br>';
-    recordButton.setAttribute('data-icon','R');
-    //recordButton.textContent = '録音';
+  try {
+    if (blob && blob.size > 0) {
+      recordedBlobs.push(blob);
+      console.log('blob: ', blob);
+      // blob
+      console.log('blob.size: ', blob.size);
+      // blob.size
+    };
+      console.log('Recorder stopped: ', blob);
+      console.log('Recorded Blobs: ', recordedBlobs);
+  
+      const superBuffer = new Blob(recordedBlobs, {type: 'audio/mp3'}); 
+      createNewPanel(window.URL.createObjectURL(superBuffer));
+      recordButton.innerHTML = 'Rec</br>';
+      recordButton.setAttribute('data-icon','R');
+      //recordButton.textContent = '録音';
+  } catch {
+    SendErrorMsg('handleDataAvailableIos', '')
+  }  
 };
 
 function closeWorker() {
-
-  // workerメモリの開放
-  
-  /*
-  if (destinationNode!==null) {
-    destinationNode.disconnect()
-    destinationNode = null
-  }
-  */
-
-  /*
-  if (outputGainNode!==null) {
-    outputGainNode.disconnect()
-    outputGainNode = null
-  }
-  */
-
-  if (processorNode!==null) {
-    processorNode.disconnect()
-    processorNode = null
-  }
-
-  if (encoderWorker!==null) {
-    encoderWorker.postMessage(['close'])
-    // encoderWorker = null
-  }
-
-  /*
-  if (micGainNode!==null) {
-    micGainNode.disconnect()
-    micGainNode = null
-  }
-  */
-
-  if (inputStreamNode!==null) {
-    inputStreamNode.disconnect()
-    inputStreamNode = null
-  }
-
-  if (config.stopTracksAndCloseCtxWhenFinished) {
+  try {
+    // workerメモリの開放
+    
     /*
-    // This removes the red bar in iOS/Safari
-    micAudioStream.getTracks().forEach((track) => track.stop())
-    micAudioStream = null
+    if (destinationNode!==null) {
+      destinationNode.disconnect()
+      destinationNode = null
+    }
     */
 
-    audioCtx.close()
-    audioCtx = null
+    /*
+    if (outputGainNode!==null) {
+      outputGainNode.disconnect()
+      outputGainNode = null
+    }
+    */
+
+    if (processorNode!==null) {
+      processorNode.disconnect()
+      processorNode = null
+    }
+
+    if (encoderWorker!==null) {
+      encoderWorker.postMessage(['close'])
+      // encoderWorker = null
+    }
+
+    /*
+    if (micGainNode!==null) {
+      micGainNode.disconnect()
+      micGainNode = null
+    }
+    */
+
+    if (inputStreamNode!==null) {
+      inputStreamNode.disconnect()
+      inputStreamNode = null
+    }
+
+    if (config.stopTracksAndCloseCtxWhenFinished) {
+      /*
+      // This removes the red bar in iOS/Safari
+      micAudioStream.getTracks().forEach((track) => track.stop())
+      micAudioStream = null
+      */
+
+      audioCtx.close()
+      audioCtx = null
+    }
+  } catch {
+    SendErrorMsg('closeWorker', '')
   }
 };
 // startRecordingIos
@@ -575,180 +597,204 @@ function _onError (evt) {
 */
 
 function stopRecordingIos() {
-  encoderWorker.postMessage(['dump', audioCtx.sampleRate]);
+  try {
+    encoderWorker.postMessage(['dump', audioCtx.sampleRate]);
+  } catch {
+    SendErrorMsg('stopRecordingIos', '')
+  }
 }
 
 function createNewPanel(audioSrc, givenName = 'new') {
+  try {
 
-  let newTrack = document.createElement('audio');
-  //let newIdx = totalIndex + 1;
-  newTrack.setAttribute('id', 'recorded');
-  newTrack.src = null;
-  newTrack.srcObject = null;
-  newTrack.src = audioSrc;
-  newTrack.controls = false;
+    let newTrack = document.createElement('audio');
+    //let newIdx = totalIndex + 1;
+    newTrack.setAttribute('id', 'recorded');
+    newTrack.src = null;
+    newTrack.srcObject = null;
+    newTrack.src = audioSrc;
+    newTrack.controls = false;
 
-  let checkBox = new MyCheckBox;
-  checkBox.style.width = '4em';
-  let dammyCheckBox = checkBox.shadowRoot.querySelector('input');
-  dammyCheckBox.setAttribute('checked', 'true');
- 
-  //let checkBox = document.createElement('input');
-  //checkBox.setAttribute('type', 'checkbox');
-  //checkBox.setAttribute('checked', 'true');
-  dammyCheckBox.addEventListener('click', (e) => {
-    console.log(e.target);
-
-    checkBox.parentNode.lastElementChild.disabled = e.target.checked ? true : false;
-  });
-
-  /*
-  let trackNumber = document.createElement('span');
-  trackNumber.setAttribute('id', 'trackNm');
-  trackNumber.innerText = newIdx;
-  */
-
-  let selectedGain = document.createElement('my-inputnumber');
-  //let selectedGain = document.createElement('input');
-  //selectedGain.setAttribute('type', 'number');
-  selectedGain.setAttribute('id', 'selGain');
-  selectedGain.setAttribute('value', 100);
-  selectedGain.setAttribute('step', '1');
-  selectedGain.setAttribute('min', '1');
-  selectedGain.setAttribute('max', 100);
-
-
-  let selectedSchedule = document.createElement('my-inputnumber');
-  //let selectedGain = document.createElement('input');
-  //selectedGain.setAttribute('type', 'number');
-  selectedSchedule.setAttribute('id', 'schedule');
-  selectedSchedule.setAttribute('value', 0);
-  selectedSchedule.setAttribute('step', '10');
-  selectedSchedule.setAttribute('min', 0);
-  selectedSchedule.setAttribute('max', 2000);
-
+    let checkBox = new MyCheckBox;
+    checkBox.style.width = '4em';
+    let dammyCheckBox = checkBox.shadowRoot.querySelector('input');
+    dammyCheckBox.setAttribute('checked', 'true');
   
-  //let checkBoxDelete = document.createElement('input');
-  //checkBoxDelete.setAttribute('type', 'checkbox');
-  //checkBoxDelete.setAttribute('id', 'delete');
-  //checkBoxDelete.hidden = true;
+    //let checkBox = document.createElement('input');
+    //checkBox.setAttribute('type', 'checkbox');
+    //checkBox.setAttribute('checked', 'true');
+    dammyCheckBox.addEventListener('click', (e) => {
+      console.log(e.target);
 
-  let trackName = document.createElement('input');
-  trackName.setAttribute('type', 'text');
-  trackName.value = givenName;
+      checkBox.parentNode.lastElementChild.disabled = e.target.checked ? true : false;
+    });
 
-  let deleteBtn = document.createElement('button');
-  deleteBtn.setAttribute('class', "iconButton");
-  deleteBtn.setAttribute('id', "delBtn");
-  deleteBtn.setAttribute('data-icon', "T");
-  deleteBtn.disabled = true;
-  deleteBtn.addEventListener('click', (e) => {
-    var _panel = e.target.parentNode;
-    deletePanel(_panel);
-  });
+    /*
+    let trackNumber = document.createElement('span');
+    trackNumber.setAttribute('id', 'trackNm');
+    trackNumber.innerText = newIdx;
+    */
 
-  /*
-  *  1. 再生位置指定
-  *   a. 開始位置をフォームで指定できるようにする
-  *   b. フォームに変更があるたびに
-  *      media.currentTimeで代入を行う
-  */
+    let selectedGain = document.createElement('my-inputnumber');
+    //let selectedGain = document.createElement('input');
+    //selectedGain.setAttribute('type', 'number');
+    selectedGain.setAttribute('id', 'selGain');
+    selectedGain.setAttribute('value', 100);
+    selectedGain.setAttribute('step', '1');
+    selectedGain.setAttribute('min', '1');
+    selectedGain.setAttribute('max', 100);
 
-  let newPanel = document.createElement('div');
-  newPanel.setAttribute('id', 'panel');
-  newPanel.appendChild(newTrack);
-  newPanel.appendChild(checkBox);
-  //newPanel.appendChild(trackNumber);
-  newPanel.appendChild(selectedGain);
-  newPanel.appendChild(selectedSchedule);
-  newPanel.appendChild(trackName);
-  newPanel.appendChild(deleteBtn);
-  
-  recordedTracks.appendChild(newPanel);
-  
-  downloadButton.disabled = false;
-  playallButton.disabled = false;  
+
+    let selectedSchedule = document.createElement('my-inputnumber');
+    //let selectedGain = document.createElement('input');
+    //selectedGain.setAttribute('type', 'number');
+    selectedSchedule.setAttribute('id', 'schedule');
+    selectedSchedule.setAttribute('value', 0);
+    selectedSchedule.setAttribute('step', '10');
+    selectedSchedule.setAttribute('min', 0);
+    selectedSchedule.setAttribute('max', 2000);
+
+    
+    //let checkBoxDelete = document.createElement('input');
+    //checkBoxDelete.setAttribute('type', 'checkbox');
+    //checkBoxDelete.setAttribute('id', 'delete');
+    //checkBoxDelete.hidden = true;
+
+    let trackName = document.createElement('input');
+    trackName.setAttribute('type', 'text');
+    trackName.value = givenName;
+
+    let deleteBtn = document.createElement('button');
+    deleteBtn.setAttribute('class', "iconButton");
+    deleteBtn.setAttribute('id', "delBtn");
+    deleteBtn.setAttribute('data-icon', "T");
+    deleteBtn.disabled = true;
+    deleteBtn.addEventListener('click', (e) => {
+      var _panel = e.target.parentNode;
+      deletePanel(_panel);
+    });
+
+    /*
+    *  1. 再生位置指定
+    *   a. 開始位置をフォームで指定できるようにする
+    *   b. フォームに変更があるたびに
+    *      media.currentTimeで代入を行う
+    */
+
+    let newPanel = document.createElement('div');
+    newPanel.setAttribute('id', 'panel');
+    newPanel.appendChild(newTrack);
+    newPanel.appendChild(checkBox);
+    //newPanel.appendChild(trackNumber);
+    newPanel.appendChild(selectedGain);
+    newPanel.appendChild(selectedSchedule);
+    newPanel.appendChild(trackName);
+    newPanel.appendChild(deleteBtn);
+    
+    recordedTracks.appendChild(newPanel);
+    
+    downloadButton.disabled = false;
+    playallButton.disabled = false;
+  } catch {
+    SendErrorMsg('createPanel', '')
+  }  
 }
 
 
 function deletePanel(panel) {
-  window.URL.revokeObjectURL(panel.querySelector('audio').src);
-  while (panel.firstChild) {
-    panel.removeChild(panel.firstChild);
-  };
-  panel.parentNode.removeChild(panel);
+  try {
+    window.URL.revokeObjectURL(panel.querySelector('audio').src);
+    while (panel.firstChild) {
+      panel.removeChild(panel.firstChild);
+    };
+    panel.parentNode.removeChild(panel);
+  } catch {
+    SendErrorMsg('deletePanel', '')
+  }
 }
 
 
 // download mixed data as mp3
 const downloadButton = document.querySelector('button#download');
 downloadButton.addEventListener('click', () => {
-//  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
-  if (recordedTracks.childElementCount < 1) {
-    alert('There is no data can be downloaded!');
-    downloadButton.disabled = true;
-  } else {
-    let [_myPlayList, _myGains] = pickUp();
+  try {
+    //  const blob = new Blob(recordedBlobs, {type: 'audio/mp3'});
+    if (recordedTracks.childElementCount < 1) {
+      alert('There is no data can be downloaded!');
+      downloadButton.disabled = true;
+    } else {
+      let [_myPlayList, _myGains, _mySchedules] = pickUp();
 
-    load(_myPlayList)
-          .then(createdBuffers => mixDown(createdBuffers, _myGains))
-          .then(mixedBuffer => toMp3(mixedBuffer))
-          .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
-          .catch(console.log('error in downloadUrl'));
+      load(_myPlayList)
+            .then(createdBuffers => mixDown(createdBuffers, _myGains, _mySchedules))
+            .then(mixedBuffer => toMp3(mixedBuffer))
+            .then(myUrl => {index = 'mixed'; console.log(myUrl); return downloadUrl(myUrl)})
+            .catch(console.log('error in downloadUrl'));
+    }
+  } catch {
+    SendErrorMsg('downloadButton', '')
   }
 });
 
 function toMp3(buffer) {
-  var channels = 1; //1 for mono or 2 for stereo
-  var sampleRate = mySampleRate; //44.1khz (normal mp3 samplerate)
-  var kbps = 128; //encode 128kbps mp3
-  var mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, kbps);
-  var mp3Data = [];
+  try {
+    var channels = 1; //1 for mono or 2 for stereo
+    var sampleRate = mySampleRate; //44.1khz (normal mp3 samplerate)
+    var kbps = 128; //encode 128kbps mp3
+    var mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, kbps);
+    var mp3Data = [];
 
-  // modification
-  // https://github.com/zhuker/lamejs/issues/10
-  var rawData = buffer.getChannelData(0);
-  var samples = new Int16Array(rawData.length);
-  for (var i=0;i<rawData.length;i++) {
-    samples[i] = rawData[i]*32767.5;
-  };
-  var sampleBlockSize = 1152; //can be anything but make it a multiple of 576 to make encoders life easier
+    // modification
+    // https://github.com/zhuker/lamejs/issues/10
+    var rawData = buffer.getChannelData(0);
+    var samples = new Int16Array(rawData.length);
+    for (var i=0;i<rawData.length;i++) {
+      samples[i] = rawData[i]*32767.5;
+    };
+    var sampleBlockSize = 1152; //can be anything but make it a multiple of 576 to make encoders life easier
 
-  for (var i = 0; i < samples.length; i += sampleBlockSize) {
-    var sampleChunk = samples.subarray(i, i + sampleBlockSize);
-    var mp3buf = mp3encoder.encodeBuffer(sampleChunk);
+    for (var i = 0; i < samples.length; i += sampleBlockSize) {
+      var sampleChunk = samples.subarray(i, i + sampleBlockSize);
+      var mp3buf = mp3encoder.encodeBuffer(sampleChunk);
+      if (mp3buf.length > 0) {
+          mp3Data.push(new Int8Array(mp3buf));
+      }
+    };
+
+    var mp3buf = mp3encoder.flush();   //finish writing mp3
+
     if (mp3buf.length > 0) {
-        mp3Data.push(new Int8Array(mp3buf));
-    }
-  };
+      mp3Data.push(new Int8Array(mp3buf));
+    };
 
-  var mp3buf = mp3encoder.flush();   //finish writing mp3
+    var blob = new Blob(mp3Data, {type: 'audio/mp3'});
+    var url = window.URL.createObjectURL(blob);
+    console.log('MP3 URl: ', url);
+    return url;
 
-  if (mp3buf.length > 0) {
-    mp3Data.push(new Int8Array(mp3buf));
-  };
-
-  var blob = new Blob(mp3Data, {type: 'audio/mp3'});
-  var url = window.URL.createObjectURL(blob);
-  console.log('MP3 URl: ', url);
-  return url;
-
-  // from README.md of lamejs
+    // from README.md of lamejs
+  } catch {
+    SendErrorMsg('toMp3', '')
+  }
 
 };
 
 function downloadUrl(url) {
-  const a = document.createElement('a');
-  a.style.display = 'none';
-  a.href = url;
-  a.download = `mixed.mp3`;
-  document.body.appendChild(a);
-  a.click();
-  // メインスレッドが完了したらa要素を取り除く(便宜上100ms指定)
-  setTimeout(() => {
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }, 100);
+  try {
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = `mixed.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    // メインスレッドが完了したらa要素を取り除く(便宜上100ms指定)
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  } catch {
+    SendErrorMsg('downloadUrl', '')
+  }
 };
 //
 
@@ -831,74 +877,85 @@ function readyRecording() {
 }
 
 function overDubIos(playList, gains) {
-  let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer, gains))
-                                  .then(mixedBuffer => ready(mixedBuffer))
-                                  .catch(e => console.error(e));
-  let readyEncoderWorker = readyRecordingIos();
+  try {
+    let readyedBuffer = load(playList).then(createdBuffer => mixDown(createdBuffer, gains))
+                                    .then(mixedBuffer => ready(mixedBuffer))
+                                    .catch(e => console.error(e));
+    let readyEncoderWorker = readyRecordingIos();
 
-  Promise.all([readyedBuffer, readyEncoderWorker])
-    .then(result => {
-      result[0].start();
-      wait(latency)
-        .then(() => launchRecordingIos())
-        .catch(e => console.error(e));
-    })
-    .catch(console.log('error in overDub'));
+    Promise.all([readyedBuffer, readyEncoderWorker])
+      .then(result => {
+        result[0].start();
+        wait(latency)
+          .then(() => launchRecordingIos())
+          .catch(e => console.error(e));
+      })
+      .catch(console.log('error in overDub'));
+  } catch {
+    SendErrorMsg('overDubIos', '')
+  }
 }
 
 function readyRecordingIos() {
-  return new Promise ((resolve, reject) => {
+  try {
+    return new Promise ((resolve, reject) => {
 
-      // 初期化
-    recordedBlobs = [];
+        // 初期化
+      recordedBlobs = [];
 
-    recordButton.textContent = 'Stop';
-    recordButton.setAttribute('data-icon','S');
-    //recordButton.textContent = '停止';
-    downloadButton.disabled = true;
-  
-    // for ios, edge
-    //
-    encoderWorker = new Worker('js/encoder-wav-worker.js')
-    encoderMimeType = 'audio/wav'
-    // 不要？
-    console.log('Created EncoderWorker', encoderWorker, 'with MimeType', encoderMimeType);
+      recordButton.textContent = 'Stop';
+      recordButton.setAttribute('data-icon','S');
+      //recordButton.textContent = '停止';
+      downloadButton.disabled = true;
+    
+      // for ios, edge
+      //
+      encoderWorker = new Worker('js/encoder-wav-worker.js')
+      encoderMimeType = 'audio/wav'
+      // 不要？
+      console.log('Created EncoderWorker', encoderWorker, 'with MimeType', encoderMimeType);
 
 
-    // 'dataavailable'イベントにdataとしてblobを載せる
-    encoderWorker.addEventListener('message', (e) => {
-      //let event = new Event('dataavailable');
-      let blb = new Blob(e.data, { type: encoderMimeType });
-      console.log('posted data', e.data);
-      handleDataAvailableIos(blb);
-      closeWorker();
-    });
+      // 'dataavailable'イベントにdataとしてblobを載せる
+      encoderWorker.addEventListener('message', (e) => {
+        //let event = new Event('dataavailable');
+        let blb = new Blob(e.data, { type: encoderMimeType });
+        console.log('posted data', e.data);
+        handleDataAvailableIos(blb);
+        closeWorker();
+      });
 
-    inputStreamNode = audioCtx.createMediaStreamSource(myStream);
+      inputStreamNode = audioCtx.createMediaStreamSource(myStream);
 
-    processorNode = audioCtx.createScriptProcessor(config.processorBufferSize, 1, 1);
+      processorNode = audioCtx.createScriptProcessor(config.processorBufferSize, 1, 1);
 
-    // we dont use destinationNode, but, it seems to be needed for activation of ScriptProcessor
-    // https://github.com/WebAudio/web-audio-api/issues/345
-    destinationNode = audioCtx.createMediaStreamDestination();
-    // TODO: Get the number of channels from mic
+      // we dont use destinationNode, but, it seems to be needed for activation of ScriptProcessor
+      // https://github.com/WebAudio/web-audio-api/issues/345
+      destinationNode = audioCtx.createMediaStreamDestination();
+      // TODO: Get the number of channels from mic
 
-    processorNode.onaudioprocess = (e) =>
-    {
-      // console.log('buffer to be encoded', e.inputBuffer.getChannelData(0));
-      encoderWorker.postMessage(['encode', e.inputBuffer.getChannelData(0)]);
-    };
+      processorNode.onaudioprocess = (e) =>
+      {
+        // console.log('buffer to be encoded', e.inputBuffer.getChannelData(0));
+        encoderWorker.postMessage(['encode', e.inputBuffer.getChannelData(0)]);
+      };
 
-    resolve(encoderWorker);
+      resolve(encoderWorker);
 
-  })
-  
+    })
+  } catch {
+    SendErrorMsg('readyRecordingIos', '')
+  }
 }
 
 function launchRecordingIos() {
+  try {
     // connect nodes to fire encoderWorker
     inputStreamNode.connect(processorNode);
     processorNode.connect(destinationNode);
+  } catch {
+    SendErrorMsg('launchRecordingIos', '')
+  }
 }
 
 
