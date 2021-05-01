@@ -244,6 +244,7 @@ const inputLevelSelector_1 = document.querySelector('my-inputnumber').shadowRoot
 // change mic level
 inputLevelSelector_0.addEventListener('click', {target: micGainMonitor, handleEvent: changeMicrophoneLevel});
 inputLevelSelector_1.addEventListener('click', {target: micGainMonitor, handleEvent: changeMicrophoneLevel});
+
 function changeMicrophoneLevel() {
   console.log('mic gain changed');
   var value = this.target.value*0.2; 
@@ -319,6 +320,14 @@ function changeLatencyLevel(e) {
   console.log(`latency changed: ${latency}`);
 };
 
+var myLatency = document.getElementById('latency');
+var currentLatency = document.getElementById('latency_value');
+var rangeValue = function (_myLatency, _currentLatency) {
+  return function(evt){
+    _currentLatency.innerHTML = _myLatency.value;
+  }
+}
+myLatency.addEventListener('input', rangeValue(myLatency, currentLatency));
 
 // start recording
 const recordButton = document.querySelector('button#record');
@@ -383,21 +392,19 @@ function pickUp() {
         }
       }
     //};
-    console.log(myGains);
-    console.log(mySchedules);
-
-    /*
-      var min_sch = 0;
-      for (var i=0; i<mySchedules.childElementCount; i++) {
-        if (mySchedules[i]<min_sch) {
-          min_sch = mySchedules[i];
-        };
-      };
-
-      mySchedules -= min_sch;
-    */
     
+    var min_sch = 0;
+    for (var i=0; i<mySchedules.length; i++) {
+      console.log(mySchedules[i]);
+      if (mySchedules[i]<min_sch) {
+        min_sch = mySchedules[i];
+      };
+    };
 
+    for (var i=0; i<mySchedules.length; i++) {
+      mySchedules[i] -= min_sch;
+    };
+    
     return [myPlayList, myGains, mySchedules];
   } catch {
     SendErrorMsg('pickUp', '')
@@ -656,7 +663,7 @@ function createNewPanel(audioSrc, givenName = 'new') {
     selectedSchedule.setAttribute('id', 'schedule');
     selectedSchedule.setAttribute('value', 0);
     selectedSchedule.setAttribute('step', '10');
-    selectedSchedule.setAttribute('min', 0);
+    selectedSchedule.setAttribute('min', -2000);
     selectedSchedule.setAttribute('max', 2000);
 
     

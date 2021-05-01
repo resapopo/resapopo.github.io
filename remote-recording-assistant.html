@@ -100,11 +100,14 @@
         <label for="inSel">録音</br>音量</label>
         <label for="latency">レイ</br>テンシー</label>
 
-        <my-inputnumber id='inSelTest' max=10 value=5></my-inputnumber>
+        <my-inputnumber id='inSel' max="10" min="1" step="0.5" value="5"></my-inputnumber>
+        <!--なぜかstepが二倍になっちゃう-->
         <!--<input type="number" id="inSel" value="5" min="1" max="10">-->
         <!-- value * 0.2 = micLevel -->
 
         <input type="range" id="latency" min="100" max="250" value="150" step="1">
+        <span id="dammy"></span>
+        <span id="latency_value">150</span>
     </div>
 </div>
 
@@ -121,7 +124,7 @@
             <span style="display: none;"></span>
             <span>✔で再生</span>
             <span>再生音量</span>
-            <span>遅れ(ms)</span>
+            <span>タイミング(ms)</span>
             <span>ファイル</span>
         </div>
         <div id="tracks">
